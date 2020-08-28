@@ -1,0 +1,38 @@
+\hypertarget{square__equation_8h}{}\doxysection{include/square\+\_\+equation.h File Reference}
+\label{square__equation_8h}\index{include/square\_equation.h@{include/square\_equation.h}}
+{\ttfamily \#include $<$cmath$>$}\newline
+{\ttfamily \#include $<$cassert$>$}\newline
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{struct_square_equation}{Square\+Equation}}
+\item 
+struct \mbox{\hyperlink{struct_square_equation_1_1_solution}{Square\+Equation\+::\+Solution}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{struct_square_equation_1_1_solution}{Square\+Equation\+::\+Solution}} \mbox{\hyperlink{square__equation_8h_ac31b7e298afe387801ed2b159b7b0ccb}{solve}} (const \mbox{\hyperlink{struct_square_equation}{Square\+Equation}} \&eq)
+\begin{DoxyCompactList}\small\item\em Finds the real roots of a quadratic equation. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{square__equation_8h_ac31b7e298afe387801ed2b159b7b0ccb}\label{square__equation_8h_ac31b7e298afe387801ed2b159b7b0ccb}} 
+\index{square\_equation.h@{square\_equation.h}!solve@{solve}}
+\index{solve@{solve}!square\_equation.h@{square\_equation.h}}
+\doxysubsubsection{\texorpdfstring{solve()}{solve()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_square_equation_1_1_solution}{Square\+Equation\+::\+Solution}} solve (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct_square_equation}{Square\+Equation}} \&}]{eq }\end{DoxyParamCaption})}
+
+
+
+Finds the real roots of a quadratic equation. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em eq} & equation to be solved\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+solution of equation represented by \mbox{\hyperlink{struct_square_equation_1_1_solution}{Square\+Equation\+::\+Solution}}
+\end{DoxyReturn}
+If root doesn\textquotesingle{}t exist corresponding value is undefined. In case of two roots, first root will be less then second. 
