@@ -66,7 +66,8 @@ namespace se {
         } else if (d < 0) {
             return {SquareEquation::Solution::Zero, 0., 0.};
         } else {
-            auto mnmx = std::minmax((-eq.b - std::sqrt(d)) / (2. * eq.a), (-eq.b + std::sqrt(d)) / (2. * eq.a));
+            auto mnmx = std::minmax((-eq.b - std::sqrt(d)) / (2. * eq.a),
+                                    (-eq.b + std::sqrt(d)) / (2. * eq.a));
             return {
                     SquareEquation::Solution::Two,
                     mnmx.first,

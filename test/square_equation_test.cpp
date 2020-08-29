@@ -18,9 +18,11 @@ namespace {
         auto const solution1 = solve({0, 1, 0});
         EXPECT_EQ(SquareEquation::Solution::One, solution1.numberOfRoots);
         EXPECT_DOUBLE_EQ(0., solution1.firstRoot);
+
         auto const solution2 = solve({0, 2, 1});
         EXPECT_EQ(SquareEquation::Solution::One, solution2.numberOfRoots);
         EXPECT_DOUBLE_EQ(-0.5, solution2.firstRoot);
+
         auto const solution3 = solve({3, 0, 0});
         EXPECT_EQ(SquareEquation::Solution::One, solution3.numberOfRoots);
         EXPECT_DOUBLE_EQ(-0., solution3.firstRoot);
