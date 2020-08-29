@@ -8,7 +8,7 @@ namespace onegin {
     static std::mt19937 rng(std::random_device{}());
 
     template<class RandomIt, class Compare>
-    inline RandomIt partition(RandomIt first, RandomIt last, const Compare cmp) {
+    RandomIt partition(RandomIt first, RandomIt last, const Compare cmp) {
         const auto val = first[rng() % (std::distance(first, last))];
         --last;
         while (first <= last) {
@@ -21,7 +21,7 @@ namespace onegin {
     }
 
     template<class RandomIt, class Compare>
-    inline void sort(RandomIt first, RandomIt last, const Compare cmp) {
+    void sort(RandomIt first, RandomIt last, const Compare cmp) {
         std::stack<std::pair<RandomIt, RandomIt>> ranges;
         ranges.emplace(first, last);
         while (!ranges.empty()) {
@@ -40,7 +40,7 @@ namespace onegin {
     }
 
     template<class RandomIt>
-    inline void sort(RandomIt first, RandomIt last) {
+    void sort(RandomIt first, RandomIt last) {
         sort(first, last, std::less<typename std::iterator_traits<RandomIt>::value_type>());
     }
 }
