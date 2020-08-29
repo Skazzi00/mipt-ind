@@ -29,12 +29,12 @@ struct SquareEquation {
  *
  * \return solution of equation represented by SquareEquation::Solution
  *
- * \details If root doesn't exist corresponding value is undefined. In case of two roots, first root will be less then second.
+ * \details If root doesn't exist corresponding value is undefined. In case of two roots, first root will be less than second.
  */
-SquareEquation::Solution solve(const SquareEquation &eq) {
+inline SquareEquation::Solution solve(const SquareEquation &eq) noexcept {
     assert(std::isfinite(eq.a) && std::isfinite(eq.b) && std::isfinite(eq.c));
 
-    auto const isZero = [](const double d) {return d == 0.;};
+    auto const isZero = [](const double d) { return d == 0.; };
 
     if (isZero(eq.a)) {
         if (isZero(eq.b)) {
@@ -61,10 +61,11 @@ SquareEquation::Solution solve(const SquareEquation &eq) {
     } else if (d < 0) {
         return {SquareEquation::Solution::Zero, 0., 0.};
     } else {
+        auto mnmx = std::minmax((-eq.b - std::sqrt(d)) / (2. * eq.a), (-eq.b + std::sqrt(d)) / (2. * eq.a));
         return {
                 SquareEquation::Solution::Two,
-                (-eq.b - std::sqrt(d)) / (2. * eq.a),
-                (-eq.b + std::sqrt(d)) / (2. * eq.a)
+                mnmx.first,
+                mnmx.second
         };
     }
 }
