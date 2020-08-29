@@ -21,4 +21,5 @@ add_executable(runUnitTests ${TEST_SRC_FILES})
 # Standard linking to gtest stuff
 target_link_libraries(runUnitTests gtest gtest_main)
 
-add_executable(mipt_ind src/main.cpp)
+add_executable(mipt_ind src/square.cpp)
+

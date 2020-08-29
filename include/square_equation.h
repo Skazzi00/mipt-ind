@@ -36,7 +36,7 @@ namespace se {
  *
  * \details If root doesn't exist corresponding value is undefined. In case of two roots, first root will be less than second.
  */
-    inline SquareEquation::Solution solve(const SquareEquation &eq) noexcept {
+    inline SquareEquation::Solution solve(const SquareEquation eq) noexcept {
         assert(std::isfinite(eq.a) && std::isfinite(eq.b) && std::isfinite(eq.c));
 
         auto const isZero = [](const double d) { return std::abs(d) < EPS; };
