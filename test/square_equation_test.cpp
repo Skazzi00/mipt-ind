@@ -3,6 +3,7 @@
 #include "square_equation.h"
 
 namespace {
+    using namespace se;
 
     TEST(SolveTest, InfinitySolutions) {
         EXPECT_EQ(SquareEquation::Solution::Inf, solve({0, 0, 0}).numberOfRoots);

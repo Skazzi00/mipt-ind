@@ -5,6 +5,7 @@
 
 namespace {
     void solveEquation(std::istream &in, std::ostream &out) {
+        using namespace se;
         out << "Enter equation coefficients:" << std::endl;
         SquareEquation eq{};
         [[maybe_unused]] bool const good = static_cast<bool>(in >> eq.a >> eq.b >> eq.c);
