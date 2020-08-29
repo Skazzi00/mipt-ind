@@ -4,6 +4,8 @@
 #include <cassert>
 #include <algorithm>
 
+inline constexpr double EPS = 1e-6;
+
 struct SquareEquation {
     double a;
     double b;
@@ -35,7 +37,7 @@ struct SquareEquation {
 inline SquareEquation::Solution solve(const SquareEquation &eq) noexcept {
     assert(std::isfinite(eq.a) && std::isfinite(eq.b) && std::isfinite(eq.c));
 
-    auto const isZero = [](const double d) { return d == 0.; };
+    auto const isZero = [](const double d) { return std::abs(d) < EPS; };
 
     if (isZero(eq.a)) {
         if (isZero(eq.b)) {
