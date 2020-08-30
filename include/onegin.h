@@ -5,10 +5,10 @@
 #include <iterator>
 
 namespace onegin {
-    static std::mt19937 rng(std::random_device{}());
 
     template<class RandomIt, class Compare>
     RandomIt partition(RandomIt first, RandomIt last, const Compare cmp) {
+        static std::mt19937 rng(std::random_device{}());
         const auto val = first[rng() % (std::distance(first, last))];
         --last;
         while (first <= last) {
