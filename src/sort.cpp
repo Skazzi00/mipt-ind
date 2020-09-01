@@ -1,12 +1,22 @@
-#include <stdexcept>
 #include <iostream>
+#include <fstream>
 
 #include "onegin.h"
 
-int main() {
-    std::vector<int> a = {2, 7, 21, 1, 2, 2, 45, 5, 29, 1, 45, 100, 54};
-    onegin::sort(a.begin(), a.end());
-
-
+int main(int argc, char **argv) {
+    std::ifstream fileInput;
+    if (argc == 2) {
+        fileInput.open(argv[1]);
+    }
+    std::istream &in = fileInput.is_open() ? fileInput : std::cin;
+    std::vector<std::string> lines;
+    std::string line;
+    while (getline(in, line)) {
+        lines.push_back(line);
+    }
+    onegin::sort(lines.begin(), lines.end());
+    for (const auto &i : lines) {
+        std::cout << i << std::endl;
+    }
     return 0;
 }
