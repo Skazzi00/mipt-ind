@@ -1,13 +1,13 @@
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "oneginC.h"
 
-struct fileMD {
-    std::size_t linesCnt;
-    std::size_t *linesSize;
-};
+typedef struct {
+    size_t linesCnt;
+    size_t *linesSize;
+} fileMD;
 
 int cstring_cmp(const void *a, const void *b);
 
@@ -28,7 +28,7 @@ int main(int argc, const char **argv) {
     }
     lines[fileMd.linesCnt - 1][fileMd.linesSize[fileMd.linesCnt - 1] - 2] = '\n'; // for last line without \n
 
-    oneginC::sort(lines, fileMd.linesCnt, sizeof(char *), cstring_cmp);
+    ON_sort(lines, fileMd.linesCnt, sizeof(char *), cstring_cmp);
     for (size_t i = 0; i < fileMd.linesCnt; ++i) {
         printf("%s", lines[i]);
         free(lines[i]);
@@ -45,7 +45,7 @@ int cstring_cmp(const void *a, const void *b) {
 }
 
 fileMD getFileMD(FILE *file) {
-    fileMD result = {0, nullptr};
+    fileMD result = {0, NULL};
     int c;
     while (!feof(file)) {
         c = fgetc(file);
@@ -55,7 +55,7 @@ fileMD getFileMD(FILE *file) {
     }
     ++result.linesCnt;
     fseek(file, 0, SEEK_SET);
-    result.linesSize = (std::size_t *) calloc(result.linesCnt, sizeof(std::size_t));
+    result.linesSize = (size_t *) calloc(result.linesCnt, sizeof(size_t));
     int curLine = 0;
     while (!feof(file)) {
         c = fgetc(file);

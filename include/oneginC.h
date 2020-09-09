@@ -1,9 +1,8 @@
 #pragma once
-#include <cstddef>
+
+#include <stddef.h>
 
 
+typedef int (*ON_CompType)(const void *a, const void *b);
 
-namespace oneginC {
-    using CompType = int (*)(const void * a, const void * b);
-    void sort(void* data, std::size_t cnt, std::size_t size, CompType cmp);
-}
+void ON_sort(void *data, size_t cnt, size_t size, ON_CompType cmp);

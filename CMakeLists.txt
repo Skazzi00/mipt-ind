@@ -25,4 +25,4 @@ add_executable(mipt_ind src/square.cpp)
 
 add_executable(sort src/sort.cpp)
 
-add_executable(sortC src/sortC.cpp src/oneginC.cpp)
+add_executable(sortC src/sort.c src/onegin.c)

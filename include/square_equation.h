@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+
 #include <cassert>
 
 namespace se {
@@ -66,7 +67,9 @@ namespace se {
                     0.
             };
         } else if (d < 0) {
-            return {SquareEquation::Solution::Zero, 0., 0.};
+            return {
+                    SquareEquation::Solution::Zero, 0., 0.
+            };
         } else {
             return {
                     SquareEquation::Solution::Two,
