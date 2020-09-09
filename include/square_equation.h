@@ -2,7 +2,6 @@
 
 #include <cmath>
 #include <cassert>
-#include <algorithm>
 
 namespace se {
 
@@ -14,7 +13,6 @@ namespace se {
         double c;
 
         struct Solution {
-
             enum {
                 Inf = -1,
                 Zero,
@@ -27,19 +25,23 @@ namespace se {
     };
 
 
+    inline bool isValid(const SquareEquation eq) noexcept {
+        return std::isfinite(eq.a) && std::isfinite(eq.b) && std::isfinite(eq.c);
+    }
+
 /**
  * \brief Finds the real roots of a quadratic equation.
  *
  * \param[in] eq equation to be solved
  *
- * \return solution of equation represented by SquareEquation::Solution
+ * \return Solution of equation represented by SquareEquation::Solution
  *
- * \details If root doesn't exist corresponding value is undefined. In case of two roots, first root will be less than second.
+ * \details If root doesn't exist corresponding value is undefined.
  */
     inline SquareEquation::Solution solve(const SquareEquation eq) noexcept {
-        assert(std::isfinite(eq.a) && std::isfinite(eq.b) && std::isfinite(eq.c));
+        assert(isValid(eq));
 
-        auto const isZero = [](const double d) { return std::abs(d) < EPS; };
+        auto const isZero = +[](const double d) { return std::abs(d) < EPS; };
 
         if (isZero(eq.a)) {
             if (isZero(eq.b)) {
@@ -66,12 +68,10 @@ namespace se {
         } else if (d < 0) {
             return {SquareEquation::Solution::Zero, 0., 0.};
         } else {
-            auto mnmx = std::minmax((-eq.b - std::sqrt(d)) / (2. * eq.a),
-                                    (-eq.b + std::sqrt(d)) / (2. * eq.a));
             return {
                     SquareEquation::Solution::Two,
-                    mnmx.first,
-                    mnmx.second
+                    (-eq.b - std::sqrt(d)) / (2. * eq.a),
+                    (-eq.b + std::sqrt(d)) / (2. * eq.a)
             };
         }
     }

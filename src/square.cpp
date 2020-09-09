@@ -4,7 +4,7 @@
 #include "square_equation.h"
 
 namespace {
-    void solveEquation(std::istream &in, std::ostream &out) {
+    void solveEquation(std::istream &in = std::cin, std::ostream &out = std::cout) {
         using namespace se;
         out << "Enter equation coefficients:" << std::endl;
         SquareEquation eq{};
@@ -32,9 +32,13 @@ namespace {
 }
 
 int main() {
+#ifdef FAST_IOSTREAM
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+#endif
     std::cout << "Program for solve quadratic equation" << std::endl;
 
-    solveEquation(std::cin, std::cout);
+    solveEquation();
 
     return 0;
 }
