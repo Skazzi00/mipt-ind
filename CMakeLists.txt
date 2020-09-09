@@ -24,3 +24,5 @@ target_link_libraries(runUnitTests gtest gtest_main)
 add_executable(mipt_ind src/square.cpp)
 
 add_executable(sort src/sort.cpp)
+
+add_executable(sortC src/sortC.cpp src/oneginC.cpp)

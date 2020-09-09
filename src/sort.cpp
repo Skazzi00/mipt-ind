@@ -3,7 +3,7 @@
 
 #include "onegin.h"
 
-int main(int argc, char **argv) {
+int main(int argc, const char **argv) {
     std::ifstream fileInput;
     if (argc == 2) {
         fileInput.open(argv[1]);
