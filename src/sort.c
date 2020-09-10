@@ -4,37 +4,34 @@
 
 #include "oneginC.h"
 
+#define START_CAPACCITY 8
+
 typedef struct {
     size_t linesCnt;
-    size_t *linesSize;
-} fileMD;
+    char **lines;
+    char *rawData;
+} fileDesc;
 
 int cstring_cmp(const void *a, const void *b);
 
-fileMD getFileMD(FILE *file);
+fileDesc getFileDesc(FILE *file);
+
+void freeFileDesc(fileDesc *fileD);
 
 int main(int argc, const char **argv) {
     if (argc < 2) {
         fprintf(stderr, "Usage: program filename\n");
-        return 1;
+        exit(1);
     }
-
     FILE *file = fopen(argv[1], "r");
-    fileMD fileMd = getFileMD(file);
-    char **lines = (char **) calloc(fileMd.linesCnt, sizeof(char *));
-    for (size_t i = 0; i < fileMd.linesCnt; ++i) {
-        lines[i] = (char *) malloc(fileMd.linesSize[i]);
-        fgets(lines[i], (int) fileMd.linesSize[i], file);
+    fileDesc fileD = getFileDesc(file);
+    if (fileD.lines) {
+        ON_sort(fileD.lines, fileD.linesCnt, sizeof(char *), cstring_cmp);
     }
-    lines[fileMd.linesCnt - 1][fileMd.linesSize[fileMd.linesCnt - 1] - 2] = '\n'; // for last line without \n
-
-    ON_sort(lines, fileMd.linesCnt, sizeof(char *), cstring_cmp);
-    for (size_t i = 0; i < fileMd.linesCnt; ++i) {
-        printf("%s", lines[i]);
-        free(lines[i]);
+    for (size_t i = 0; i < fileD.linesCnt; ++i) {
+        printf("%s\n", fileD.lines[i]);
     }
-    free(lines);
-    free(fileMd.linesSize);
+    freeFileDesc(&fileD);
     fclose(file);
 }
 
@@ -44,27 +41,44 @@ int cstring_cmp(const void *a, const void *b) {
     return strcmp(*ia, *ib);
 }
 
-fileMD getFileMD(FILE *file) {
-    fileMD result = {0, NULL};
-    int c;
-    while (!feof(file)) {
-        c = fgetc(file);
-        if (c == '\n') {
-            ++result.linesCnt;
-        }
+fileDesc getFileDesc(FILE *file) {
+    fileDesc result = {0, NULL, NULL};
+    fseek(file, 0, SEEK_END);
+    size_t length = ftell(file);
+    if (length == 0) {
+        return result;
     }
-    ++result.linesCnt;
     fseek(file, 0, SEEK_SET);
-    result.linesSize = (size_t *) calloc(result.linesCnt, sizeof(size_t));
-    int curLine = 0;
-    while (!feof(file)) {
-        c = fgetc(file);
-        ++result.linesSize[curLine];
-        if (c == '\n') {
-            result.linesSize[curLine++] += 1;
-        }
+    char *data = malloc(length);
+    if (!data) {
+        fprintf(stderr, "File is to big\n");
+        exit(1);
     }
-    result.linesSize[curLine]++;
-    fseek(file, 0, SEEK_SET);
+    result.rawData = data;
+    fread(data, sizeof(char), length, file);
+    result.linesCnt = 1;
+    size_t curCapacity = START_CAPACCITY;
+    result.lines = calloc(curCapacity, sizeof(char *));
+    result.lines[0] = data;
+    while (*data) {
+        if (*data == '\n') {
+            *data = '\0';
+            if (result.linesCnt == curCapacity) {
+                char **tmp = calloc(curCapacity * 2, sizeof(char *));
+                memcpy(tmp, result.lines, sizeof(char *) * curCapacity);
+                free(result.lines);
+                result.lines = tmp;
+                curCapacity *= 2;
+            }
+            result.lines[result.linesCnt++] = data + 1;
+        }
+        ++data;
+    }
     return result;
+}
+
+void freeFileDesc(fileDesc *fileD) {
+    if (!fileD) return;
+    if (fileD->lines) free(fileD->lines);
+    if (fileD->rawData) free(fileD->rawData);
 }
