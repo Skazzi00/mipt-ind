@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include "oneginC.h"
 
@@ -42,6 +43,7 @@ int cstring_cmp(const void *a, const void *b) {
 }
 
 fileDesc getFileDesc(FILE *file) {
+    assert(file);
     fileDesc result = {0, NULL, NULL};
     fseek(file, 0, SEEK_END);
     size_t length = ftell(file);
@@ -52,6 +54,7 @@ fileDesc getFileDesc(FILE *file) {
     char *data = malloc(length);
     if (!data) {
         fprintf(stderr, "File is to big\n");
+        fclose(file);
         exit(1);
     }
     result.rawData = data;
