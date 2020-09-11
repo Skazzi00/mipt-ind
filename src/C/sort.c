@@ -8,20 +8,22 @@
 
 int main(int argc, const char **argv) {
     if (argc < 2) {
-        fprintf(stderr, "Usage: program filename\n");
-        exit(1);
+        fprintf(stderr, "Usage: %s filename\n", argv[0]);
+        exit(EXIT_FAILURE);
     }
+    errno = 0;
     FILE *file = fopen(argv[1], "rb");
     if (!file) {
         perror("fopen() failed");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
+    errno = 0;
     fileDesc fileD = getFileDesc(file);
     if (errno) {
         perror("getFileDesc() failed");
         freeFileDesc(&fileD);
         fclose(file);
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     if (fileD.lines) {
         qsort(fileD.lines, fileD.linesCnt, sizeof(fileD.lines[0]), strViewCmp);
@@ -42,7 +44,7 @@ int main(int argc, const char **argv) {
     puts("################SOURCE################");
     char *data = fileD.rawData + 1;
     for (size_t i = 0; i < fileD.linesCnt; ++i) {
-        printf("%s\n",data);
+        printf("%s\n", data);
         data += strlen(data) + 1;
     }
 

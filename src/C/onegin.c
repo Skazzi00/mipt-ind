@@ -6,12 +6,10 @@
 #include "C/onegin.h"
 
 #define SWAP(a, b, size)              \
-  do                                  \
-    {                                 \
+  do {                                \
       size_t __size = (size);         \
       char *__a = (a), *__b = (b);    \
-      do                              \
-        {                             \
+      do {                            \
           char __tmp = *__a;          \
           *__a++ = *__b;              \
           *__b++ = __tmp;             \

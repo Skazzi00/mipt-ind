@@ -7,10 +7,16 @@
 #include "C/strutil.h"
 
 size_t getFileSize(FILE *file) {
+    errno = 0;
     size_t pos = ftell(file);
-    fseek(file, 0, SEEK_END);
+    if (errno) { return -1; }
+
+    if (fseek(file, 0, SEEK_END)) { return -1; }
+
     size_t length = ftell(file) + 1;
-    fseek(file, pos, SEEK_SET);
+    if (errno) { return -1; }
+
+    if (fseek(file, pos, SEEK_SET)) { return -1; }
     return length;
 }
 
