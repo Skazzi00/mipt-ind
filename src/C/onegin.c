@@ -3,18 +3,21 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "C/oneginC.h"
+#include "C/onegin.h"
 
+#define SWAP(a, b, size)              \
+  do                                  \
+    {                                 \
+      size_t __size = (size);         \
+      char *__a = (a), *__b = (b);    \
+      do                              \
+        {                             \
+          char __tmp = *__a;          \
+          *__a++ = *__b;              \
+          *__b++ = __tmp;             \
+        } while (--__size > 0);       \
+    } while (0)
 
-static inline void swap(void *const a, void *const b, size_t size) {
-    assert(a);
-    assert(b);
-    void *tmp = malloc(size);
-    memcpy(tmp, a, size);
-    memcpy(a, b, size);
-    memcpy(b, tmp, size);
-    free(tmp);
-}
 
 static size_t partition(void *const data, size_t cnt, size_t size, const ON_CompType cmp) {
     assert(data);
@@ -27,7 +30,7 @@ static size_t partition(void *const data, size_t cnt, size_t size, const ON_Comp
         while (cmp((char *) data + first * size, val) < 0) first++;
         while (cmp(val, (char *) data + last * size) < 0) last--;
         if (first >= last) break;
-        swap((char *) data + first++ * size, (char *) data + last-- * size, size);
+        SWAP((char *) data + first++ * size, (char *) data + last-- * size, size);
     }
     free(val);
     return last;
@@ -42,4 +45,6 @@ void ON_sort(void *const data, size_t cnt, size_t size, const ON_CompType cmp) {
         ON_sort((char *) data + (p + 1) * size, cnt - (p + 1), size, cmp);
     }
 }
+
+#undef SWAP
 

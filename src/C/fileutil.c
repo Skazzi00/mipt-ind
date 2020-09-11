@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <errno.h>
 
 #include "C/fileutil.h"
 #include "C/strutil.h"
@@ -16,18 +17,29 @@ size_t getFileSize(FILE *file) {
 fileDesc getFileDesc(FILE *file) {
     assert(file);
     fileDesc result = {0, NULL, NULL};
+
     size_t length = getFileSize(file);
+    if (errno) {
+        return result;
+    }
+
     char *dataPtr = malloc(length);
     if (!dataPtr) {
-        fprintf(stderr, "File is to big\n");
-        fclose(file);
-        exit(1);
+        return result;
     }
-    result.rawData = dataPtr;
-    fread(dataPtr, sizeof(dataPtr[0]), length, file);
 
+    fread(dataPtr, sizeof(dataPtr[0]), length, file);
+    if (ferror(file)) {
+        return result;
+    }
+
+    result.rawData = dataPtr;
     result.linesCnt = calcLines(dataPtr);
     result.lines = calloc(result.linesCnt, sizeof(result.lines[0]));
+    if (!result.lines) {
+        return result;
+    }
+
     size_t curLine = 0;
     result.lines[curLine].length = 0;
     result.lines[curLine].data = dataPtr;

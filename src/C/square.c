@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "C/square_equationC.h"
+#include "C/square_equation.h"
 
 #define INPUT_SIZE 256
 
@@ -13,7 +13,7 @@ int main() {
     char input[INPUT_SIZE]; // in ideal world there should be dynamic allocation
     fgets(input, INPUT_SIZE, stdin);
     int good = sscanf(input, "%lf%lf%lf", &equation.a, &equation.b, &equation.c);
-    if (!good) {
+    if (good != 3) {
         puts("Wrong input! Restart program");
         exit(1);
     }

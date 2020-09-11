@@ -7,6 +7,8 @@
 #include "C/strutil.h"
 
 int strViewCmp(const void *a, const void *b) {
+    assert(a);
+    assert(b);
     const strView *ia = (const strView *) a;
     const strView *ib = (const strView *) b;
     return strcmp(ia->data, ib->data);
