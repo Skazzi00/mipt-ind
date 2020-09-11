@@ -26,14 +26,26 @@ int main(int argc, const char **argv) {
     if (fileD.lines) {
         qsort(fileD.lines, fileD.linesCnt, sizeof(fileD.lines[0]), strViewCmp);
     }
+    puts("################SORTED################");
     for (size_t i = 0; i < fileD.linesCnt; ++i) {
         printf("%s\n", fileD.lines[i].data);
     }
+
+    if (fileD.lines) {
+        qsort(fileD.lines, fileD.linesCnt, sizeof(fileD.lines[0]), strViewCmpReversed);
+    }
+    puts("###########REVERSED#SORTED############");
+    for (size_t i = 0; i < fileD.linesCnt; ++i) {
+        printf("%s\n", fileD.lines[i].data);
+    }
+
+    puts("################SOURCE################");
+    char *data = fileD.rawData + 1;
+    for (size_t i = 0; i < fileD.linesCnt; ++i) {
+        printf("%s\n",data);
+        data += strlen(data) + 1;
+    }
+
     freeFileDesc(&fileD);
     fclose(file);
 }
-/*
- * format file before program
- * punctuation and merge spaces
- * reverse comparator
- */

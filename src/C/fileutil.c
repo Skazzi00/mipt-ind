@@ -23,17 +23,18 @@ fileDesc getFileDesc(FILE *file) {
         return result;
     }
 
-    char *dataPtr = malloc(length);
+    char *dataPtr = malloc(length + 1); // +1 for \0 at the begining
     if (!dataPtr) {
         return result;
     }
-
+    result.rawData = dataPtr;
+    dataPtr[0] = '\0';
+    dataPtr++;
     fread(dataPtr, sizeof(dataPtr[0]), length, file);
     if (ferror(file)) {
         return result;
     }
 
-    result.rawData = dataPtr;
     result.linesCnt = calcLines(dataPtr);
     result.lines = calloc(result.linesCnt, sizeof(result.lines[0]));
     if (!result.lines) {

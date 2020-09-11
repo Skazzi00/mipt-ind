@@ -13,7 +13,19 @@ int main(int argc, const char **argv) {
     std::string line;
     while (getline(in, line)) {
         if (!line.empty())
-            lines.push_back(line);
+            lines.emplace_back(std::move(line));
+    }
+    for (const auto &str : lines) {
+        bool flag = false;
+        for (const auto ch : str) {
+            if (("а" <= std::string(1, ch) && std::string(1, ch) <= "я") ) {
+                flag = true;
+                break;
+            }
+        }
+        if (flag) {
+            std::cout << str << std::endl;
+         }
     }
 
     return 0;
