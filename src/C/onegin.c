@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "oneginC.h"
+#include "C/oneginC.h"
 
 
 static inline void swap(void *const a, void *const b, size_t size) {

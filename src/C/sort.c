@@ -3,7 +3,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "oneginC.h"
+#include "C/oneginC.h"
 
 #define START_CAPACCITY 8
 
@@ -85,3 +85,7 @@ void freeFileDesc(fileDesc *fileD) {
     if (fileD->lines) free(fileD->lines);
     if (fileD->rawData) free(fileD->rawData);
 }
+/*
+ * format file before program
+ *
+ */
