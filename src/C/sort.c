@@ -24,7 +24,7 @@ int main(int argc, const char **argv) {
         fprintf(stderr, "Usage: program filename\n");
         exit(1);
     }
-    FILE *file = fopen(argv[1], "r");
+    FILE *file = fopen(argv[1], "rb");
     fileDesc fileD = getFileDesc(file);
     if (fileD.lines) {
         ON_sort(fileD.lines, fileD.linesCnt, sizeof(char *), cstring_cmp);
@@ -42,37 +42,47 @@ int cstring_cmp(const void *a, const void *b) {
     return strcmp(*ia, *ib);
 }
 
+
+size_t getFileSize(FILE *file) {
+    size_t pos = ftell(file);
+    fseek(file, 0, SEEK_END);
+    size_t length = ftell(file) + 1;
+    fseek(file, pos, SEEK_SET);
+    return length;
+}
+
+size_t calcLines(const char * str) {
+    assert(str);
+    size_t lines = 1;
+    while (*str) {
+        if (*str == '\n') ++lines;
+        ++str;
+    }
+    return lines;
+}
+
 fileDesc getFileDesc(FILE *file) {
     assert(file);
     fileDesc result = {0, NULL, NULL};
-    fseek(file, 0, SEEK_END);
-    size_t length = ftell(file);
-    if (length == 0) {
-        return result;
-    }
-    fseek(file, 0, SEEK_SET);
-    char *data = malloc(length);
-    if (!data) {
+    size_t length = getFileSize(file);
+    char *dataPtr = malloc(length);
+    if (!dataPtr) {
         fprintf(stderr, "File is to big\n");
         fclose(file);
         exit(1);
     }
-    result.rawData = data;
-    fread(data, sizeof(char), length, file);
-    result.linesCnt = 1;
-    size_t curCapacity = START_CAPACCITY;
-    result.lines = calloc(curCapacity, sizeof(result.lines));
-    result.lines[0] = data;
-    while (*data) {
-        if (*data == '\n') {
-            *data = '\0';
-            if (result.linesCnt == curCapacity) {
-                curCapacity *= 2;
-                result.lines = realloc(result.lines, curCapacity * sizeof(result.lines));
-            }
-            result.lines[result.linesCnt++] = data + 1;
+    result.rawData = dataPtr;
+    fread(dataPtr, sizeof(dataPtr[0]), length, file);
+    result.linesCnt = calcLines(dataPtr);
+    result.lines = calloc(result.linesCnt, sizeof(result.lines));
+    size_t curLine = 0;
+    result.lines[curLine++] = dataPtr;
+    while (*dataPtr) {
+        if (*dataPtr == '\n') {
+            *dataPtr = '\0';
+            result.lines[curLine++] = dataPtr + 1;
         }
-        ++data;
+        dataPtr++;
     }
     return result;
 }
@@ -84,5 +94,7 @@ void freeFileDesc(fileDesc *fileD) {
 }
 /*
  * format file before program
- *
+ * punctuation and merge spaces
+ * reverse comporator
+ * string view
  */
