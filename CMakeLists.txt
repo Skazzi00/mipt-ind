@@ -14,7 +14,7 @@ enable_testing()
 
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
-file(GLOB TEST_SRC_FILES ${PROJECT_SOURCE_DIR}/test/*.cpp)
+file(GLOB TEST_SRC_FILES ${PROJECT_SOURCE_DIR}/test/CPP/*.cpp)
 
 add_executable(runUnitTests ${TEST_SRC_FILES})
 
@@ -28,3 +28,5 @@ add_executable(sort src/CPP/sort.cpp)
 add_executable(sortC src/C/sort.c src/C/onegin.c)
 
 add_executable(squareC src/C/square.c)
+
+add_executable(format_file src/CPP/format_file.cpp)

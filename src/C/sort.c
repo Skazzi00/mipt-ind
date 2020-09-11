@@ -61,17 +61,14 @@ fileDesc getFileDesc(FILE *file) {
     fread(data, sizeof(char), length, file);
     result.linesCnt = 1;
     size_t curCapacity = START_CAPACCITY;
-    result.lines = calloc(curCapacity, sizeof(char *));
+    result.lines = calloc(curCapacity, sizeof(result.lines));
     result.lines[0] = data;
     while (*data) {
         if (*data == '\n') {
             *data = '\0';
             if (result.linesCnt == curCapacity) {
-                char **tmp = calloc(curCapacity * 2, sizeof(char *));
-                memcpy(tmp, result.lines, sizeof(char *) * curCapacity);
-                free(result.lines);
-                result.lines = tmp;
                 curCapacity *= 2;
+                result.lines = realloc(result.lines, curCapacity * sizeof(result.lines));
             }
             result.lines[result.linesCnt++] = data + 1;
         }
