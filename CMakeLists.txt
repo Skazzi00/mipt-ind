@@ -25,7 +25,7 @@ add_executable(mipt_ind src/CPP/square.cpp)
 
 add_executable(sort src/CPP/sort.cpp)
 
-add_executable(sortC src/C/sort.c src/C/onegin.c)
+add_executable(sortC src/C/sort.c src/C/onegin.c src/C/fileutil.c src/C/strutil.c)
 
 add_executable(squareC src/C/square.c)
 
