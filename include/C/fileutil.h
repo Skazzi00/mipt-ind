@@ -1,8 +1,10 @@
 #pragma once
 
+#include "strutil.h"
+
 typedef struct {
     size_t linesCnt;
-    char **lines;
+    strView *lines;
     char *rawData;
 } fileDesc;
 

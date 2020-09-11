@@ -14,10 +14,10 @@ int main(int argc, const char **argv) {
     FILE *file = fopen(argv[1], "rb");
     fileDesc fileD = getFileDesc(file);
     if (fileD.lines) {
-        ON_sort(fileD.lines, fileD.linesCnt, sizeof(char *), cstring_cmp);
+        ON_sort(fileD.lines, fileD.linesCnt, sizeof(fileD.lines[0]), strViewCmp);
     }
     for (size_t i = 0; i < fileD.linesCnt; ++i) {
-        printf("%s\n", fileD.lines[i]);
+        printf("%s\n", fileD.lines[i].data);
     }
     freeFileDesc(&fileD);
     fclose(file);
@@ -25,6 +25,5 @@ int main(int argc, const char **argv) {
 /*
  * format file before program
  * punctuation and merge spaces
- * reverse comporator
- * string view
+ * reverse comparator
  */

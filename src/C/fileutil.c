@@ -25,14 +25,19 @@ fileDesc getFileDesc(FILE *file) {
     }
     result.rawData = dataPtr;
     fread(dataPtr, sizeof(dataPtr[0]), length, file);
+
     result.linesCnt = calcLines(dataPtr);
-    result.lines = calloc(result.linesCnt, sizeof(result.lines));
+    result.lines = calloc(result.linesCnt, sizeof(result.lines[0]));
     size_t curLine = 0;
-    result.lines[curLine++] = dataPtr;
+    result.lines[curLine].length = 0;
+    result.lines[curLine].data = dataPtr;
     while (*dataPtr) {
         if (*dataPtr == '\n') {
             *dataPtr = '\0';
-            result.lines[curLine++] = dataPtr + 1;
+            result.lines[++curLine].data = dataPtr + 1;
+            result.lines[curLine].length = 0;
+        } else {
+            result.lines[curLine].length++;
         }
         dataPtr++;
     }

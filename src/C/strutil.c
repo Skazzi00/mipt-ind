@@ -6,10 +6,10 @@
 
 #include "C/strutil.h"
 
-int cstring_cmp(const void *a, const void *b) {
-    const char **ia = (const char **) a;
-    const char **ib = (const char **) b;
-    return strcmp(*ia, *ib);
+int strViewCmp(const void *a, const void *b) {
+    const strView *ia = (const strView *) a;
+    const strView *ib = (const strView *) b;
+    return strcmp(ia->data, ib->data);
 }
 
 size_t calcLines(const char * str) {
