@@ -29,7 +29,7 @@ fileDesc getFileDesc(FILE *file) {
         return result;
     }
 
-    char *dataPtr = malloc(length + 1); // +1 for \0 at the begining
+    char *dataPtr = malloc(length + 1); // +1 for \0 at the beginning
     if (!dataPtr) {
         return result;
     }
