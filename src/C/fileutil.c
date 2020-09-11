@@ -6,14 +6,14 @@
 #include "C/fileutil.h"
 #include "C/strutil.h"
 
-size_t getFileSize(FILE *file) {
+long getFileSize(FILE *file) {
     errno = 0;
-    size_t pos = ftell(file);
+    long pos = ftell(file);
     if (errno) { return -1; }
 
     if (fseek(file, 0, SEEK_END)) { return -1; }
 
-    size_t length = ftell(file) + 1;
+    long length = ftell(file) + 1;
     if (errno) { return -1; }
 
     if (fseek(file, pos, SEEK_SET)) { return -1; }
@@ -24,7 +24,7 @@ fileDesc getFileDesc(FILE *file) {
     assert(file);
     fileDesc result = {0, NULL, NULL};
 
-    size_t length = getFileSize(file);
+    size_t length = (size_t) getFileSize(file);
     if (errno) {
         return result;
     }
