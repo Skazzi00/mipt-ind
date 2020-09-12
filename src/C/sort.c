@@ -18,10 +18,9 @@ int main(int argc, const char **argv) {
         exit(EXIT_FAILURE);
     }
     errno = 0;
-    fileDesc fileD = getFileDesc(file);
+    const fileDesc fileD = getFileDesc(file);
     if (errno) {
         perror("getFileDesc() failed");
-        freeFileDesc(&fileD);
         fclose(file);
         exit(EXIT_FAILURE);
     }

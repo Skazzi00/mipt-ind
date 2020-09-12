@@ -6,7 +6,7 @@
 #include "C/fileutil.h"
 #include "C/strutil.h"
 
-long getFileSize(FILE *file) {
+static inline long getFileSize(FILE *file) {
     errno = 0;
     long pos = ftell(file);
     if (errno) { return -1; }
@@ -20,6 +20,41 @@ long getFileSize(FILE *file) {
     return length;
 }
 
+static inline char *readData(FILE *file, size_t length) {
+    char *dataPtr = malloc(length + 1);
+    if (!dataPtr) {
+        return NULL;
+    }
+    dataPtr[0] = '\0';
+    fread(dataPtr + 1, sizeof(dataPtr[0]), length, file);
+    if (ferror(file)) {
+        free(dataPtr);
+        return NULL;
+    }
+    return dataPtr;
+}
+
+static inline strView *dataToLinesArray(char *dataPtr, size_t linesCnt) {
+    strView *result = calloc(linesCnt, sizeof(result[0]));
+    if (!result) {
+        return NULL;
+    }
+    size_t curLine = 0;
+    result[curLine].length = 0;
+    result[curLine].data = dataPtr;
+    while (*dataPtr) {
+        if (*dataPtr == '\n') {
+            *dataPtr = '\0';
+            result[++curLine].data = dataPtr + 1;
+            result[curLine].length = 0;
+        } else {
+            result[curLine].length++;
+        }
+        dataPtr++;
+    }
+    return result;
+}
+
 fileDesc getFileDesc(FILE *file) {
     assert(file);
     fileDesc result = {0, NULL, NULL};
@@ -29,41 +64,22 @@ fileDesc getFileDesc(FILE *file) {
         return result;
     }
 
-    char *dataPtr = malloc(length + 1); // +1 for \0 at the beginning
-    if (!dataPtr) {
+    result.rawData = readData(file, length);
+    if (!result.rawData) {
         return result;
     }
-    result.rawData = dataPtr;
-    dataPtr[0] = '\0';
-    dataPtr++;
-    fread(dataPtr, sizeof(dataPtr[0]), length, file);
-    if (ferror(file)) {
-        return result;
-    }
+    char *dataPtr = result.rawData + 1;
 
     result.linesCnt = calcLines(dataPtr);
-    result.lines = calloc(result.linesCnt, sizeof(result.lines[0]));
-    if (!result.lines) {
+    result.lines = dataToLinesArray(dataPtr, result.linesCnt);
+    if (!result.linesCnt) {
+        free(result.rawData);
         return result;
-    }
-
-    size_t curLine = 0;
-    result.lines[curLine].length = 0;
-    result.lines[curLine].data = dataPtr;
-    while (*dataPtr) {
-        if (*dataPtr == '\n') {
-            *dataPtr = '\0';
-            result.lines[++curLine].data = dataPtr + 1;
-            result.lines[curLine].length = 0;
-        } else {
-            result.lines[curLine].length++;
-        }
-        dataPtr++;
     }
     return result;
 }
 
-void freeFileDesc(fileDesc *fileD) {
+void freeFileDesc(const fileDesc *fileD) {
     if (!fileD) return;
     if (fileD->lines) free(fileD->lines);
     if (fileD->rawData) free(fileD->rawData);

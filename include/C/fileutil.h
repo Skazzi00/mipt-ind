@@ -10,6 +10,4 @@ typedef struct {
 
 fileDesc getFileDesc(FILE *file);
 
-void freeFileDesc(fileDesc *fileD);
-
-long getFileSize(FILE *file);
+void freeFileDesc(const fileDesc *fileD);
