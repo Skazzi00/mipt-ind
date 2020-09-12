@@ -4,6 +4,14 @@
 #include <assert.h>
 #include <ctype.h>
 
+#ifdef _WIN32
+#include <winsock.h>
+#else
+
+#include <arpa/inet.h>
+
+#endif
+
 #include "C/strutil.h"
 
 
@@ -26,11 +34,9 @@ static int smartStrViewCmp(const strView *sv1, const strView *sv2, int delta) {
         while (ispunct(s1[i])) i += delta;
         while (ispunct(s2[j])) j += delta;
         if (delta < 0 && s1[i] < 0 && s2[j] < 0) {
-            const unsigned short c1 =
-                    ((unsigned short) (((unsigned char) s1[i + delta]) << 8u)) | (unsigned char) s1[i];
-            const unsigned short c2 =
-                    ((unsigned short) (((unsigned char) s2[j + delta]) << 8u)) | (unsigned char) s2[j];
-            if (c1 != c2) {
+            const unsigned short c1 = htons(*((unsigned short *) (s1 + i + delta)));
+            const unsigned short c2 = htons(*((unsigned short *) (s2 + j + delta)));
+            if (c1 != c2) { // NOLINT
                 return c1 < c2 ? -1 : 1;
             }
             i += delta * 2;
