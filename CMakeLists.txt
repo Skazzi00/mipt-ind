@@ -3,7 +3,7 @@ project(mipt_ind)
 
 set(CMAKE_CXX_STANDARD 20)
 set(COMMON_FLAGS "-Werror -Wall -Wextra -pedantic -Wshadow -Wconversion -Wsign-conversion -fsanitize=address -DFAST_IOSTREAM")
-set(CMAKE_CXX_FLAGS "-std=c++20 -Werror -Wall -Wextra -pedantic -Wshadow -Wconversion -Wsign-conversion -fsanitize=address -DFAST_IOSTREAM")
+set(CMAKE_CXX_FLAGS ${COMMON_FLAGS})
 set(CMAKE_C_FLAGS ${COMMON_FLAGS})
 
 set(COMMON_INCLUDES ${PROJECT_SOURCE_DIR}/include)
