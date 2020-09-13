@@ -7,6 +7,7 @@
 #include "C/strutil.h"
 
 static inline long getFileSize(FILE *file) {
+    assert(file);
     errno = 0;
     long pos = ftell(file);
     if (errno) { return -1; }
@@ -21,6 +22,7 @@ static inline long getFileSize(FILE *file) {
 }
 
 static inline char *readData(FILE *file, size_t length) {
+    assert(file);
     char *dataPtr = calloc(length + 1, 1);
     if (!dataPtr) {
         return NULL;
@@ -35,6 +37,7 @@ static inline char *readData(FILE *file, size_t length) {
 }
 
 static inline strView *dataToLinesArray(char *dataPtr, size_t linesCnt) {
+    assert(dataPtr);
     strView *result = calloc(linesCnt, sizeof(result[0]));
     if (!result) {
         return NULL;
