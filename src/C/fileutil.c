@@ -21,7 +21,7 @@ static inline long getFileSize(FILE *file) {
 }
 
 static inline char *readData(FILE *file, size_t length) {
-    char *dataPtr = malloc(length + 1);
+    char *dataPtr = calloc(length + 1, 1);
     if (!dataPtr) {
         return NULL;
     }
