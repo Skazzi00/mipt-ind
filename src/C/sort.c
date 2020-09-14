@@ -2,11 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <locale.h>
 
 #include "C/strutil.h"
 #include "C/fileutil.h"
 
 int main(int argc, const char **argv) {
+    setlocale(LC_ALL, "ru_RU.UTF-8");
     if (argc < 2) {
         fprintf(stderr, "Usage: %s filename\n", argv[0]);
         exit(EXIT_FAILURE);
