@@ -5,7 +5,7 @@
 typedef struct {
     size_t linesCnt;
     strView *lines;
-    char *rawData;
+    char *_rawData;
 } fileDesc;
 
 /*!

@@ -9,6 +9,9 @@ set(CMAKE_C_FLAGS ${COMMON_FLAGS})
 set(COMMON_INCLUDES ${PROJECT_SOURCE_DIR}/include)
 include_directories(${COMMON_INCLUDES})
 
+file(GLOB LIB_FILES src/C/lib/*.c)
+
+add_library(miptLib ${LIB_FILES})
 
 add_subdirectory(./googletest)
 
@@ -21,13 +24,15 @@ file(GLOB TEST_SRC_FILES ${PROJECT_SOURCE_DIR}/test/CPP/*.cpp)
 add_executable(runUnitTests ${TEST_SRC_FILES})
 
 # Standard linking to gtest stuff
-target_link_libraries(runUnitTests gtest gtest_main)
+target_link_libraries(runUnitTests gtest gtest_main miptLib)
 
 add_executable(mipt_ind src/CPP/square.cpp)
 
 add_executable(sort src/CPP/sort.cpp)
 
-add_executable(sortC src/C/sort.c src/C/onegin.c src/C/fileutil.c src/C/strutil.c)
+add_executable(sortC src/C/sort.c)
+
+target_link_libraries(sortC miptLib)
 
 add_executable(squareC src/C/square.c)
 

@@ -10,12 +10,12 @@ static inline long getFileSize(FILE *file) {
     assert(file);
     errno = 0;
     long pos = ftell(file);
-    if (errno) { return -1; }
+    if (errno != 0) { return -1; }
 
     if (fseek(file, 0, SEEK_END)) { return -1; }
 
     long length = ftell(file) + 1;
-    if (errno) { return -1; }
+    if (errno != 0) { return -1; }
 
     if (fseek(file, pos, SEEK_SET)) { return -1; }
     return length;
@@ -23,7 +23,7 @@ static inline long getFileSize(FILE *file) {
 
 static inline char *readData(FILE *file, size_t length) {
     assert(file);
-    char *dataPtr = calloc(length + 1, 1);
+    char *dataPtr = calloc(length + 1, sizeof(dataPtr[0]));
     if (!dataPtr) {
         return NULL;
     }
@@ -63,20 +63,20 @@ fileDesc getFileDesc(FILE *file) {
     fileDesc result = {0, NULL, NULL};
 
     size_t length = (size_t) getFileSize(file);
-    if (errno) {
+    if (errno != 0) {
         return result;
     }
 
-    result.rawData = readData(file, length);
-    if (!result.rawData) {
+    result._rawData = readData(file, length);
+    if (!result._rawData) {
         return result;
     }
-    char *dataPtr = result.rawData + 1;
+    char *dataPtr = result._rawData + 1;
 
     result.linesCnt = calcLines(dataPtr);
     result.lines = dataToLinesArray(dataPtr, result.linesCnt);
     if (!result.linesCnt) {
-        free(result.rawData);
+        free(result._rawData);
         return result;
     }
     return result;
@@ -85,5 +85,5 @@ fileDesc getFileDesc(FILE *file) {
 void freeFileDesc(const fileDesc *fileD) {
     if (!fileD) return;
     if (fileD->lines) free(fileD->lines);
-    if (fileD->rawData) free(fileD->rawData);
+    if (fileD->_rawData) free(fileD->_rawData);
 }

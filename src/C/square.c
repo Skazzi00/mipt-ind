@@ -33,6 +33,6 @@ int main() {
             puts("Infinity solution");
             break;
         default:
-            assert(!"Something gone wrong");
+            assert(0 && "Something gone wrong");
     }
 }

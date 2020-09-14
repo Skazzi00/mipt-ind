@@ -19,7 +19,7 @@ int main(int argc, const char **argv) {
     }
     errno = 0;
     const fileDesc fileD = getFileDesc(file);
-    if (errno) {
+    if (errno != 0) {
         perror("getFileDesc() failed");
         fclose(file);
         exit(EXIT_FAILURE);
@@ -41,7 +41,7 @@ int main(int argc, const char **argv) {
     }
 
     puts("################SOURCE################");
-    char *data = fileD.rawData + 1;
+    char *data = fileD._rawData + 1;
     for (size_t i = 0; i < fileD.linesCnt; ++i) {
         printf("%s\n", data);
         data += strlen(data) + 1;
