@@ -34,8 +34,8 @@ static int smartStrViewCmp(const strView *sv1, const strView *sv2, int delta) {
         while (ispunct(s1[i])) i += delta;
         while (ispunct(s2[j])) j += delta;
         if (delta < 0 && s1[i] < 0 && s2[j] < 0) {
-            const unsigned short c1 = htons(*((unsigned short *) (s1 + i + delta)));
-            const unsigned short c2 = htons(*((unsigned short *) (s2 + j + delta)));
+            const unsigned short c1 = ntohs(*((unsigned short *) (s1 + i + delta)));
+            const unsigned short c2 = ntohs(*((unsigned short *) (s2 + j + delta)));
             if (c1 != c2) { // NOLINT
                 return c1 < c2 ? -1 : 1;
             }
