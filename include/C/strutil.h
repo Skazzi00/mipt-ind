@@ -2,7 +2,7 @@
 
 typedef struct {
     size_t length;
-    char *data;
+    const char *data;
 } strView;
 
 /*!
