@@ -13,12 +13,14 @@ int main(int argc, const char **argv) {
         fprintf(stderr, "Usage: %s filename\n", argv[0]);
         exit(EXIT_FAILURE);
     }
+
     errno = 0;
     FILE *file = fopen(argv[1], "rb");
     if (!file) {
         perror("fopen() failed");
         exit(EXIT_FAILURE);
     }
+
     errno = 0;
     const fileDesc fileD = getFileDesc(file);
     if (errno != 0) {
@@ -26,6 +28,7 @@ int main(int argc, const char **argv) {
         fclose(file);
         exit(EXIT_FAILURE);
     }
+
     if (fileD.lines) {
         qsort(fileD.lines, fileD.linesCnt, sizeof(fileD.lines[0]), strViewCmp);
     }
