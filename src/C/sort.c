@@ -7,6 +7,12 @@
 #include "C/strutil.h"
 #include "C/fileutil.h"
 
+void printLines(const strView *data, size_t length) {
+    for (size_t i = 0; i < length; ++i) {
+        printf("%s\n", data[i].data);
+    }
+}
+
 int main(int argc, const char **argv) {
     setlocale(LC_ALL, "ru_RU.UTF-8");
     if (argc < 2) {
@@ -33,23 +39,23 @@ int main(int argc, const char **argv) {
         qsort(fileD.lines, fileD.linesCnt, sizeof(fileD.lines[0]), strViewCmp);
     }
     puts("################SORTED################");
-    for (size_t i = 0; i < fileD.linesCnt; ++i) {
-        printf("%s\n", fileD.lines[i].data);
-    }
+    printLines(fileD.lines, fileD.linesCnt);
 
     if (fileD.lines) {
         qsort(fileD.lines, fileD.linesCnt, sizeof(fileD.lines[0]), strViewCmpReversed);
     }
     puts("###########REVERSED#SORTED############");
-    for (size_t i = 0; i < fileD.linesCnt; ++i) {
-        printf("%s\n", fileD.lines[i].data);
-    }
+    printLines(fileD.lines, fileD.linesCnt);
+
 
     puts("################SOURCE################");
-    char *data = fileD._rawData + 1;
-    for (size_t i = 0; i < fileD.linesCnt; ++i) {
-        printf("%s\n", data);
-        data += strlen(data) + 1;
+    char *data = fileD._rawData.data;
+    for (size_t i = 1; i < fileD._rawData.length; ++i) {
+        if (data[i] == '\0') {
+            putchar('\n');
+        } else {
+            putchar(data[i]);
+        }
     }
 
     freeFileDesc(&fileD);

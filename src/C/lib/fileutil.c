@@ -21,19 +21,21 @@ static inline long getFileSize(FILE *file) {
     return length;
 }
 
-static inline char *readData(FILE *file, size_t length) {
+static inline str readData(FILE *file, size_t length) {
     assert(file);
-    char *dataPtr = calloc(length + 1, sizeof(dataPtr[0]));
-    if (!dataPtr) {
-        return NULL;
+    str result = {0, NULL};
+    result.data = calloc(length + 1, sizeof(result.data[0]));
+    if (!result.data) {
+        return result;
     }
-    dataPtr[0] = '\0';
-    fread(dataPtr + 1, sizeof(dataPtr[0]), length, file);
+    result.length = length + 1;
+    result.data[0] = '\0';
+    fread(result.data + 1, sizeof(result.data[0]), length, file);
     if (ferror(file)) {
-        free(dataPtr);
-        return NULL;
+        free(result.data);
+        return result;
     }
-    return dataPtr;
+    return result;
 }
 
 static inline strView *dataToLinesArray(char *dataPtr, size_t linesCnt) {
@@ -60,7 +62,7 @@ static inline strView *dataToLinesArray(char *dataPtr, size_t linesCnt) {
 
 fileDesc getFileDesc(FILE *file) {
     assert(file);
-    fileDesc result = {0, NULL, NULL};
+    fileDesc result = {0, NULL, {0, NULL}};
 
     size_t length = (size_t) getFileSize(file);
     if (errno != 0) {
@@ -68,15 +70,15 @@ fileDesc getFileDesc(FILE *file) {
     }
 
     result._rawData = readData(file, length);
-    if (!result._rawData) {
+    if (!result._rawData.data) {
         return result;
     }
-    char *dataPtr = result._rawData + 1;
+    char *dataPtr = result._rawData.data + 1;
 
     result.linesCnt = calcLines(dataPtr);
     result.lines = dataToLinesArray(dataPtr, result.linesCnt);
     if (!result.linesCnt) {
-        free(result._rawData);
+        free(result._rawData.data);
         return result;
     }
     return result;
@@ -85,5 +87,5 @@ fileDesc getFileDesc(FILE *file) {
 void freeFileDesc(const fileDesc *fileD) {
     if (!fileD) return;
     if (fileD->lines) free(fileD->lines);
-    if (fileD->_rawData) free(fileD->_rawData);
+    if (fileD->_rawData.data) free(fileD->_rawData.data);
 }
