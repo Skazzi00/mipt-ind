@@ -21,40 +21,38 @@ static int smartStrViewCmp(const strView *sv1, const strView *sv2, int delta) {
     assert(delta == 1 || delta == -1);
     const char *s1 = sv1->data;
     const char *s2 = sv2->data;
-    int i = 0;
-    int j = 0;
     if (delta < 0) {
-        i = (int) sv1->length - 1;
-        j = (int) sv2->length - 1;
+        s1 += (int) sv1->length - 1;
+        s2 += (int) sv2->length - 1;
     }
-    while (ispunct(s1[i]) || isspace(s1[i])) i += delta;
-    while (ispunct(s2[j]) || isspace(s2[j])) j += delta;
+    while (ispunct(*s1) || isspace(*s1)) s1 += delta;
+    while (ispunct(*s2) || isspace(*s2)) s2 += delta;
 
     while (1) {
-        while (ispunct(s1[i])) i += delta;
-        while (ispunct(s2[j])) j += delta;
-        if (delta < 0 && s1[i] < 0 && s2[j] < 0) {
-            const unsigned short c1 = ntohs(*((unsigned short *) (s1 + i + delta)));
-            const unsigned short c2 = ntohs(*((unsigned short *) (s2 + j + delta)));
+        while (ispunct(*s1)) s1 += delta;
+        while (ispunct(*s2)) s2 += delta;
+        if (delta < 0 && *s1 < 0 && *s2 < 0) {
+            const unsigned short c1 = ntohs(*((unsigned short *) (s1 + delta)));
+            const unsigned short c2 = ntohs(*((unsigned short *) (s2 + delta)));
             if (c1 != c2) { // NOLINT
                 return c1 < c2 ? -1 : 1;
             }
-            i += delta * 2;
-            j += delta * 2;
+            s1 += delta * 2;
+            s2 += delta * 2;
         } else {
-            if (s1[i] != s2[j]) {
-                return s1[i] < s2[j] ? -1 : 1;
+            if (*s1 != *s2) {
+                return *s1 < *s2 ? -1 : 1;
             }
 
-            if (s1[i] == '\0') {
+            if (*s1 == '\0') {
                 return 0;
             }
-            if (isspace(s1[i])) {
-                while (isspace(s1[i])) i += delta;
-                while (isspace(s2[j])) j += delta;
+            if (isspace(*s1)) {
+                while (isspace(*s1)) s1 += delta;
+                while (isspace(*s2)) s2 += delta;
             } else {
-                i += delta;
-                j += delta;
+                s1 += delta;
+                s2 += delta;
             }
         }
     }
