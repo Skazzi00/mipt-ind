@@ -3,12 +3,12 @@
 typedef struct {
     size_t length;
     char *data;
-} str;
+} str_t;
 
 typedef struct {
     size_t length;
     const char *data;
-} strView;
+} strView_t;
 
 /*!
  * Compares the strView a to the strView b.

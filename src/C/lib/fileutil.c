@@ -21,9 +21,9 @@ static inline long getFileSize(FILE *file) {
     return length;
 }
 
-static inline str readData(FILE *file, size_t length) {
+static inline str_t readData(FILE *file, size_t length) {
     assert(file);
-    str result = {0, NULL};
+    str_t result = {0, NULL};
     result.data = calloc(length + 1, sizeof(result.data[0]));
     if (!result.data) {
         return result;
@@ -38,9 +38,9 @@ static inline str readData(FILE *file, size_t length) {
     return result;
 }
 
-static inline strView *dataToLinesArray(char *dataPtr, size_t linesCnt) {
+static inline strView_t *dataToLinesArray(char *dataPtr, size_t linesCnt) {
     assert(dataPtr);
-    strView *result = calloc(linesCnt, sizeof(result[0]));
+    strView_t *result = calloc(linesCnt, sizeof(result[0]));
     if (!result) {
         return NULL;
     }
@@ -60,9 +60,9 @@ static inline strView *dataToLinesArray(char *dataPtr, size_t linesCnt) {
     return result;
 }
 
-fileDesc getFileDesc(FILE *file) {
+fileDesc_t getFileDesc(FILE *file) {
     assert(file);
-    fileDesc result = {0, NULL, {0, NULL}};
+    fileDesc_t result = {0, NULL, {0, NULL}};
 
     size_t length = (size_t) getFileSize(file);
     if (errno != 0) {
@@ -84,7 +84,7 @@ fileDesc getFileDesc(FILE *file) {
     return result;
 }
 
-void freeFileDesc(const fileDesc *fileD) {
+void freeFileDesc(const fileDesc_t *fileD) {
     if (!fileD) return;
     if (fileD->lines) free(fileD->lines);
     if (fileD->_rawData.data) free(fileD->_rawData.data);

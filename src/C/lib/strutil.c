@@ -15,7 +15,7 @@
 #include "C/strutil.h"
 
 
-static int smartStrViewCmp(const strView *sv1, const strView *sv2, int delta) {
+static int smartStrViewCmp(const strView_t *sv1, const strView_t *sv2, int delta) {
     assert(sv1);
     assert(sv2);
     assert(delta == 1 || delta == -1);
@@ -61,16 +61,16 @@ static int smartStrViewCmp(const strView *sv1, const strView *sv2, int delta) {
 int strViewCmp(const void *a, const void *b) {
     assert(a);
     assert(b);
-    const strView *ia = (const strView *) a;
-    const strView *ib = (const strView *) b;
+    const strView_t *ia = (const strView_t *) a;
+    const strView_t *ib = (const strView_t *) b;
     return smartStrViewCmp(ia, ib, 1);
 }
 
 int strViewCmpReversed(const void *a, const void *b) {
     assert(a);
     assert(b);
-    const strView *ia = (const strView *) a;
-    const strView *ib = (const strView *) b;
+    const strView_t *ia = (const strView_t *) a;
+    const strView_t *ib = (const strView_t *) b;
     return smartStrViewCmp(ia, ib, -1);
 }
 

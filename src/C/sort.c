@@ -7,7 +7,7 @@
 #include "C/strutil.h"
 #include "C/fileutil.h"
 
-void printLines(const strView *data, size_t length) {
+void printLines(const strView_t *data, size_t length) {
     for (size_t i = 0; i < length; ++i) {
         printf("%s\n", data[i].data);
     }
@@ -28,7 +28,7 @@ int main(int argc, const char **argv) {
     }
 
     errno = 0;
-    const fileDesc fileD = getFileDesc(file);
+    const fileDesc_t fileD = getFileDesc(file);
     if (errno != 0) {
         perror("getFileDesc() failed");
         fclose(file);
