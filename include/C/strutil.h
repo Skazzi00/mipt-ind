@@ -32,3 +32,18 @@ int strViewCmpReversed(const void *a, const void *b);
  * @return number of lines in string
  */
 size_t calcLines(const char *str);
+
+/*!
+ * Print array of strView_t.
+ * @param data
+ * @param length
+ */
+void printLines(const strView_t *data, size_t length);
+
+/*!
+ * Print raw data. Replace '\0' to '\n'
+ * @param data
+ * @param length
+ */
+void printRawData(const char *data, size_t length);
+
