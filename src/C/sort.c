@@ -13,7 +13,7 @@ int main(int argc, const char **argv) {
 
     if (argc < 2) {
         fprintf(stderr, "Usage: %s filename\n", argv[0]);
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
 
     FILE *file = fopenChecked(argv[1], "rb");
