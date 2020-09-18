@@ -45,7 +45,7 @@ int main(int argc, const char **argv) {
 
 
     puts("################SOURCE################");
-    char *data = fileD._rawData.data;
+    const char *data = fileD._rawData.data;
     for (size_t i = 1; i < fileD._rawData.length; ++i) {
         if (data[i] == '\0') {
             putchar('\n');
