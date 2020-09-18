@@ -29,21 +29,17 @@ int main(int argc, const char **argv) {
 
     errno = 0;
     const fileDesc_t fileD = getFileDesc(file);
-    if (errno != 0) {
+    if (errno != 0 || !fileD.lines) {
         perror("getFileDesc() failed");
         fclose(file);
         exit(EXIT_FAILURE);
     }
 
-    if (fileD.lines) {
-        qsort(fileD.lines, fileD.linesCnt, sizeof(fileD.lines[0]), strViewCmp);
-    }
+    qsort(fileD.lines, fileD.linesCnt, sizeof(fileD.lines[0]), strViewCmp);
     puts("################SORTED################");
     printLines(fileD.lines, fileD.linesCnt);
 
-    if (fileD.lines) {
-        qsort(fileD.lines, fileD.linesCnt, sizeof(fileD.lines[0]), strViewCmpReversed);
-    }
+    qsort(fileD.lines, fileD.linesCnt, sizeof(fileD.lines[0]), strViewCmpReversed);
     puts("###########REVERSED#SORTED############");
     printLines(fileD.lines, fileD.linesCnt);
 
