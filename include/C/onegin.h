@@ -3,7 +3,9 @@
 #include <stddef.h>
 
 
-typedef int (*ON_CompType)(const void *a, const void *b);
+typedef int (*Comp_t)(const void *a, const void *b);
+
+typedef void (*Sort_t)(void *, size_t,size_t, Comp_t);
 
 /*!
  * Sort array (quicksort implementation)
@@ -12,4 +14,4 @@ typedef int (*ON_CompType)(const void *a, const void *b);
  * @param size size of one item
  * @param cmp comparator for comparing items
  */
-void ON_sort(void *data, size_t cnt, size_t size, ON_CompType cmp);
+void ON_sort(void *data, size_t cnt, size_t size, Comp_t cmp);

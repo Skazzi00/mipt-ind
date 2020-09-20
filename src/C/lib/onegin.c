@@ -17,7 +17,7 @@
     } while (0)
 
 
-static size_t partition(void *const data, size_t cnt, size_t size, const ON_CompType cmp) {
+static size_t partition(void *const data, size_t cnt, size_t size, const Comp_t cmp) {
     assert(data);
     assert(cmp);
     void *const val = malloc(size);
@@ -34,7 +34,7 @@ static size_t partition(void *const data, size_t cnt, size_t size, const ON_Comp
     return last;
 }
 
-void ON_sort(void *const data, size_t cnt, size_t size, const ON_CompType cmp) {
+void ON_sort(void *const data, size_t cnt, size_t size, const Comp_t cmp) {
     assert(data);
     assert(cmp);
     size_t p = partition(data, cnt, size, cmp);
