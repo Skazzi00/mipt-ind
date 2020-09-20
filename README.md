@@ -43,5 +43,5 @@ $ ./squareC
 
 ```shell script
 $ ./sort [file]
-$ ./sortC file
+$ ./sortC [-ho] <input>
 ```
