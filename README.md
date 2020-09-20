@@ -1,4 +1,4 @@
-# mipt-ind
+# Mipt Industrial Programming Course 
 
 Ilya Dedinsky's Industrial Programming Course
 
