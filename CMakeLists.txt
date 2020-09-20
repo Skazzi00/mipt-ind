@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.17)
 project(mipt_ind)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(COMMON_FLAGS "-Werror -Wall -Wextra -pedantic -Wshadow -Wconversion -Wsign-conversion -fsanitize=address -Wignored-qualifiers -Wwrite-strings -DFAST_IOSTREAM")
-set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++20")
+set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++17")
 set(CMAKE_C_FLAGS ${COMMON_FLAGS})
 
 set(COMMON_INCLUDES ${PROJECT_SOURCE_DIR}/include)
