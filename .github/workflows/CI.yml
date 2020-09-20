@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with: 
-          submodules: t rue
+          submodules: true
       - name: Generate build files using cmake
         run: cmake .
       - name: Run make
