@@ -7,10 +7,10 @@
 #include "C/fileutil.h"
 #include "C/onegin.h"
 
-#define HELP_STRING  "Usage: %s [-ho] <input>\n"              \
-                          "Options:\n"                        \
-                          "    -h print this help message\n"  \
-                          "    -o flag for using onegin sort" \
+#define HELP_STRING  "Usage: %s [-ho] <input>\n"         \
+                     "Options:\n"                        \
+                     "    -h print this help message\n"  \
+                     "    -o flag for using onegin sort" \
 
 
 static Sort_t sort_f = &qsort;
