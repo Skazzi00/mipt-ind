@@ -11,6 +11,7 @@ namespace {
         ASSERT_EQ(1, desc.linesCnt);
         ASSERT_EQ(0, desc.lines[0].length);
         ASSERT_EQ(0, strcmp("", desc.lines[0].data));
+        freeFileDesc(&desc);
     }
 
     TEST(GetFileDescTest, one_char) {
@@ -21,6 +22,7 @@ namespace {
         ASSERT_EQ(1, desc.linesCnt);
         ASSERT_EQ(1, desc.lines[0].length);
         ASSERT_EQ(0, strcmp("a", desc.lines[0].data));
+        freeFileDesc(&desc);
     }
 
     TEST(GetFileDescTest, sample_string) {
@@ -32,5 +34,6 @@ namespace {
         ASSERT_EQ(1, desc.linesCnt);
         ASSERT_EQ(sample.length(), desc.lines[0].length);
         ASSERT_EQ(0, strcmp(sample.c_str(), desc.lines[0].data));
+        freeFileDesc(&desc);
     }
 }
