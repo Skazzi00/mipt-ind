@@ -92,6 +92,7 @@ size_t calcLines(const char *str) {
 
 void printLines(const strView_t *data, size_t length) {
     assert(data);
+
     for (size_t i = 0; i < length; ++i) {
         assert(data[i].data);
         printf("%s\n", data[i].data);
@@ -100,6 +101,7 @@ void printLines(const strView_t *data, size_t length) {
 
 void printRawData(const char *data, size_t length) {
     assert(data);
+
     for (size_t i = 1; i < length; ++i) {
         if (data[i] == '\0') {
             putchar('\n');

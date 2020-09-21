@@ -70,6 +70,7 @@ static inline strView_t *dataToLinesArray(char *dataPtr, size_t linesCnt) {
 
 fileDesc_t getFileDesc(FILE *file) {
     assert(file);
+
     fileDesc_t result = {0, NULL, {0, NULL}, OK};
 
     size_t length = (size_t) getFileSize(file);
@@ -99,6 +100,7 @@ fileDesc_t getFileDesc(FILE *file) {
 
 fileDesc_t getFileDescChecked(FILE * file) {
     assert(file);
+
     errno = 0;
     const fileDesc_t fileD = getFileDesc(file);
     if (fileD.status == ERROR) {
@@ -118,6 +120,7 @@ void freeFileDesc(const fileDesc_t *fileD) {
 FILE *fopenChecked(const char * filename, const char * mode) {
     assert(filename);
     assert(mode);
+
     errno = 0;
     FILE *file = fopen(filename, mode);
     if (!file) {

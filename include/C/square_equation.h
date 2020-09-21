@@ -44,6 +44,7 @@ static inline int isZero(double const d) {
  */
 static inline Solution solve(SquareEquation const eq) {
     assert(isValid(eq));
+
     Solution solution = {ZERO, 0., 0.};
     if (isZero(eq.a)) {
         if (isZero(eq.b)) {
