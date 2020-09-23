@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <string.h>
 
 #ifdef _WIN32
 #include <winsock.h>
@@ -82,8 +83,8 @@ size_t calcLines(const char *str) {
     assert(str);
 
     size_t lines = 1;
-    while (*str) {
-        if (*str == '\n') ++lines;
+    while ((str = strchr(str, '\n'))) {
+        ++lines;
         ++str;
     }
 

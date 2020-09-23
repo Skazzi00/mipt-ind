@@ -98,7 +98,7 @@ fileDesc_t getFileDesc(FILE *file) {
     return result;
 }
 
-fileDesc_t getFileDescChecked(FILE * file) {
+fileDesc_t getFileDescChecked(FILE *file) {
     assert(file);
 
     errno = 0;
@@ -117,7 +117,7 @@ void freeFileDesc(const fileDesc_t *fileD) {
     if (fileD->_rawData.data) free(fileD->_rawData.data);
 }
 
-FILE *fopenChecked(const char * filename, const char * mode) {
+FILE *fopenChecked(const char *filename, const char *mode) {
     assert(filename);
     assert(mode);
 
