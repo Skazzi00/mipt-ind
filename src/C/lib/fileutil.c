@@ -68,10 +68,10 @@ static inline strView_t *dataToLinesArray(char *dataPtr, size_t linesCnt) {
     return result;
 }
 
-fileDesc_t getFileDesc(FILE *file) {
+fileMeta_t getFileMeta(FILE *file) {
     assert(file);
 
-    fileDesc_t result = {0, NULL, {0, NULL}, OK};
+    fileMeta_t result = {0, NULL, {0, NULL}, OK};
 
     size_t length = (size_t) getFileSize(file);
     if (errno != 0) {
@@ -98,19 +98,19 @@ fileDesc_t getFileDesc(FILE *file) {
     return result;
 }
 
-fileDesc_t getFileDescChecked(FILE *file) {
+fileMeta_t getFileMetaChecked(FILE *file) {
     assert(file);
 
     errno = 0;
-    const fileDesc_t fileD = getFileDesc(file);
+    const fileMeta_t fileD = getFileMeta(file);
     if (fileD.status == ERROR) {
-        perror("getFileDesc() failed");
+        perror("getFileMeta() failed");
         return fileD;
     }
     return fileD;
 }
 
-void freeFileDesc(const fileDesc_t *fileD) {
+void freeFileMeta(const fileMeta_t *fileD) {
     if (!fileD) return;
 
     if (fileD->lines) free(fileD->lines);

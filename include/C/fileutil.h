@@ -13,20 +13,20 @@ typedef struct {
     strView_t *lines;
     str_t _rawData;
     STATUS_CODE_E status;
-} fileDesc_t;
+} fileMeta_t;
 
 /*!
  * Read lines from UTF-8 file
  * @param file pointer to FILE
  * @return file descriptor containing lines count, lines as an array strView, and pointer to raw data from file
  */
-fileDesc_t getFileDesc(FILE *file);
+fileMeta_t getFileMeta(FILE *file);
 
 /*!
  * Free all resource from fileDesc
  * @param fileD pointer to structure to release
  */
-void freeFileDesc(const fileDesc_t *fileD);
+void freeFileMeta(const fileMeta_t *fileD);
 
 /*!
  * fopen() with error handling
@@ -37,7 +37,7 @@ void freeFileDesc(const fileDesc_t *fileD);
 FILE *fopenChecked(const char *filename, const char *mode);
 
 /*!
- * getFileDesc() with error handling
+ * getFileMeta() with error handling
  */
-fileDesc_t getFileDescChecked(FILE *file);
+fileMeta_t getFileMetaChecked(FILE *file);
 

@@ -34,25 +34,25 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    const fileDesc_t fileD = getFileDescChecked(file);
-    if (fileD.status == ERROR) {
+    const fileMeta_t fileMeta = getFileMetaChecked(file);
+    if (fileMeta.status == ERROR) {
         fclose(file);
         return EXIT_FAILURE;
     }
 
-    sort_f(fileD.lines, fileD.linesCnt, sizeof(fileD.lines[0]), strViewCmp);
+    sort_f(fileMeta.lines, fileMeta.linesCnt, sizeof(fileMeta.lines[0]), strViewCmp);
     puts("################SORTED################");
-    printLines(fileD.lines, fileD.linesCnt);
+    printLines(fileMeta.lines, fileMeta.linesCnt);
 
-    sort_f(fileD.lines, fileD.linesCnt, sizeof(fileD.lines[0]), strViewCmpReversed);
+    sort_f(fileMeta.lines, fileMeta.linesCnt, sizeof(fileMeta.lines[0]), strViewCmpReversed);
     puts("###########REVERSED#SORTED############");
-    printLines(fileD.lines, fileD.linesCnt);
+    printLines(fileMeta.lines, fileMeta.linesCnt);
 
 
     puts("################SOURCE################");
-    printRawData(fileD._rawData.data, fileD._rawData.length);
+    printRawData(fileMeta._rawData.data, fileMeta._rawData.length);
 
-    freeFileDesc(&fileD);
+    freeFileMeta(&fileMeta);
     fclose(file);
 }
 
