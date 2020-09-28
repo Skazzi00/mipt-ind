@@ -20,16 +20,16 @@ int main() {
 
     Solution solution = solve(equation);
     switch (solution.type) {
-        case ZERO:
+        case ZERO_SOLUTION:
             puts("No solutions");
             break;
-        case ONE:
+        case ONE_SOLUTION:
             printf("One solution: x = %lg", solution.firstRoot);
             break;
-        case TWO:
+        case TWO_SOLUTION:
             printf("Two solutions: x1 = %lg, x2 = %lg", solution.firstRoot, solution.secondRoot);
             break;
-        case INF:
+        case INF_SOLUTION:
             puts("Infinity solution");
             break;
         default:
