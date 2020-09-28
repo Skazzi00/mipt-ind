@@ -36,4 +36,6 @@ target_link_libraries(sortC miptLib)
 
 add_executable(squareC src/C/square.c)
 
+target_link_libraries(squareC miptLib)
+
 add_executable(format_file src/CPP/format_file.cpp)
