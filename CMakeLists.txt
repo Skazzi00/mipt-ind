@@ -39,3 +39,7 @@ add_executable(squareC src/C/square.c)
 target_link_libraries(squareC miptLib)
 
 add_executable(format_file src/CPP/format_file.cpp)
+
+add_executable(stack_example src/C/stack_ex.c)
+
+target_link_libraries(stack_example miptLib)
