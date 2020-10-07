@@ -1,7 +1,7 @@
 #include <stdio.h>
 
-#include "C/stack.h"
-#include "C/log.h"
+#include "stack.h"
+#include "log.h"
 
 int main() {
     initLog(stderr);

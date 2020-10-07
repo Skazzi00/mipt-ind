@@ -3,9 +3,9 @@
 #include <locale.h>
 #include <unistd.h>
 
-#include "C/strutil.h"
-#include "C/fileutil.h"
-#include "C/onegin.h"
+#include "strutil.h"
+#include "fileutil.h"
+#include "onegin.h"
 
 #define HELP_STRING  "Usage: %s [-ho] <input>\n"         \
                      "Options:\n"                        \

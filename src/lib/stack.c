@@ -3,9 +3,9 @@
 #include <math.h>
 
 
-#include "C/stack.h"
-#include "C/hash.h"
-#include "C/log.h"
+#include "stack.h"
+#include "hash.h"
+#include "log.h"
 
 static const size_t NPOS = (size_t) -1;
 

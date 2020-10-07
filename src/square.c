@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "C/square_equation.h"
+#include "square_equation.h"
 
 #define INPUT_SIZE 256
 

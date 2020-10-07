@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "CPP/square_equation.h"
+#include "square_equation.hpp"
 
 namespace {
     using namespace se;

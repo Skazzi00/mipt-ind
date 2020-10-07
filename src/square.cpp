@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include <iostream>
 
-#include "CPP/square_equation.h"
+#include "square_equation.hpp"
 
 namespace {
     void solveEquation(std::istream &in = std::cin, std::ostream &out = std::cout) {

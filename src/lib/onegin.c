@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "C/onegin.h"
+#include "onegin.h"
 
 #define SWAP(a, b, size)              \
   do {                                \

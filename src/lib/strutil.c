@@ -14,7 +14,7 @@
 
 #endif
 
-#include "C/strutil.h"
+#include "strutil.h"
 
 
 static int smartStrViewCmp(const char *s1, const char *s2, int delta) {

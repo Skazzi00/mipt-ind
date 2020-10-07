@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "C/fileutil.h"
-#include "C/strutil.h"
+#include "fileutil.h"
+#include "strutil.h"
 
 static inline long getFileSize(FILE *file) {
     assert(file);

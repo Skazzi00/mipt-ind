@@ -2,7 +2,7 @@
 #include <fstream>
 #include <algorithm>
 
-#include "CPP/onegin.h"
+#include "onegin.hpp"
 
 int main(int argc, const char **argv) {
     std::ifstream fileInput;

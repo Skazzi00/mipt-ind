@@ -9,7 +9,7 @@ set(CMAKE_C_FLAGS ${COMMON_FLAGS})
 set(COMMON_INCLUDES ${PROJECT_SOURCE_DIR}/include)
 include_directories(${COMMON_INCLUDES})
 
-file(GLOB LIB_FILES src/C/lib/*.c)
+file(GLOB LIB_FILES src/lib/*.c)
 
 add_library(miptLib ${LIB_FILES})
 
@@ -19,27 +19,27 @@ enable_testing()
 
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
-file(GLOB TEST_SRC_FILES ${PROJECT_SOURCE_DIR}/test/CPP/*.cpp)
+file(GLOB TEST_SRC_FILES ${PROJECT_SOURCE_DIR}/test/*.cpp)
 
 add_executable(runUnitTests ${TEST_SRC_FILES})
 
 # Standard linking to gtest stuff
 target_link_libraries(runUnitTests gtest gtest_main miptLib)
 
-add_executable(square src/CPP/square.cpp)
+add_executable(square src/square.cpp)
 
-add_executable(sort src/CPP/sort.cpp)
+add_executable(sort src/sort.cpp)
 
-add_executable(sortC src/C/sort.c)
+add_executable(sortC src/sort.c)
 
 target_link_libraries(sortC miptLib)
 
-add_executable(squareC src/C/square.c)
+add_executable(squareC src/square.c)
 
 target_link_libraries(squareC miptLib)
 
-add_executable(format_file src/CPP/format_file.cpp)
+add_executable(format_file src/format_file.cpp)
 
-add_executable(stack_example src/C/stack_ex.c)
+add_executable(stack_example src/stack_ex.c)
 
 target_link_libraries(stack_example miptLib)

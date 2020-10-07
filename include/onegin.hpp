@@ -1,8 +1,8 @@
 #pragma once
 
-#include <random>
-#include <stack>
-#include <iterator>
+#include "../../../../Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/random"
+#include "../../../../Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/stack"
+#include "../../../../Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/iterator"
 
 namespace onegin {
 
