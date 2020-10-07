@@ -223,7 +223,11 @@ StackError StackPush(Stack *self, StackElem value) {
 
 StackError StackPop(Stack *self) {
     ASSERT_OK(self);
-
+    if (StackSize(self) == 0) {
+        fprintf(logfile, "Trying to pop from empty stack! Dump:\n");
+        StackDump(self);
+        return STACK_EMPTY;
+    }
     self->mData[--self->mSize] = NAN;
 
     REHASH(self);

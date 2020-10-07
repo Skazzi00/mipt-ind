@@ -9,11 +9,12 @@ typedef double StackElem;
 #define STACK_ELEM_FORMAT "%lg"
 
 enum StackError_e {
+    STACK_OK            = 0,
     STACK_NULL          = 1,
     STACK_CORRUPT       = 2,
     STACK_INVALID       = 3,
     STACK_OUT_OF_MEMORY = 4,
-    STACK_OK            = 5
+    STACK_EMPTY         = 5,
 };
 typedef enum StackError_e StackError;
 

@@ -28,4 +28,3 @@ int main() {
     printf("%lg", x);
 
 }
-//docs
