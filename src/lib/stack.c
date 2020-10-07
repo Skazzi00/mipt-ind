@@ -45,7 +45,8 @@ StackHashT StackHash(Stack *stack) {
     if (!stack) return result;
 
     result.mdHash = hash(((char *) stack) + mdShift, mdEnd - mdShift);
-    result.dataHash = hash(stack->mData, stack->mCapacity * sizeof(StackElem));
+    if (stack->mData)
+        result.dataHash = hash(stack->mData, stack->mCapacity * sizeof(StackElem));
     return result;
 }
 
@@ -57,6 +58,10 @@ StackError StackValidate(Stack *self) {
 
 #ifdef STACK_MARKER_CHECK
     if (self->_endMarker != MARKER_CODE || self->_beginMarker != MARKER_CODE) {
+        return STACK_CORRUPT;
+    }
+    if (*((MarkerType *) self->mData - 1) != MARKER_CODE ||
+        *((MarkerType *) (self->mData + self->mCapacity)) != MARKER_CODE) {
         return STACK_CORRUPT;
     }
 #endif
@@ -118,9 +123,15 @@ void StackDump(Stack *self) {
     if (!self->mData) {
         fprintf(logfile, "\t\tData unavailable\n");
     } else {
+#ifdef STACK_MARKER_CHECK
+        fprintf(logfile, "\t\tbeginMarkerData = %zX\n", *((MarkerType *) self->mData - 1));
+#endif
         for (size_t i = 0; i < self->mCapacity; ++i) {
             fprintf(logfile, "\t\t[%zu] = " STACK_ELEM_FORMAT "\n", i, self->mData[i]);
         }
+#ifdef STACK_MARKER_CHECK
+        fprintf(logfile, "\t\tendMarkerData = %zX\n", *((MarkerType *) (self->mData + self->mCapacity)));
+#endif
     }
     fprintf(logfile, "\t}\n");
 
@@ -177,9 +188,10 @@ Stack *StackNew(size_t capacity) {
     return self;
 }
 
-void StackFree(Stack *self) {
-    if (!self) return;
+StackError StackFree(Stack *self) {
+    ASSERT_OK(self);
     free(((char *) self->mData) - MARKER_SIZE);
+    return STACK_OK;
 }
 
 void StackDelete(Stack *self) {

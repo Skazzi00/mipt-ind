@@ -97,8 +97,9 @@ void StackDelete(Stack *self);
 /*!
  * Free stack resources
  * @param self pointer to stack
+ * @return error code
  */
-void StackFree(Stack *self);
+enum StackError_e StackFree(Stack *self);
 
 /*!
  * Creates new stack in dynamic memory
