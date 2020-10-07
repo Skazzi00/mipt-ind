@@ -16,12 +16,13 @@ const size_t MARKER_SIZE = sizeof(MarkerType);
 const size_t MARKER_SIZE = 0;
 #endif
 
-#define ASSERT_OK(self) do {              \
-StackError errCode = StackValidate(self); \
-if (errCode != STACK_OK) {                \
+
+#define ASSERT_OK(self) do {                    \
+StackError errCode = StackValidate(self);       \
+if (errCode != STACK_OK) {                      \
     fprintf(logfile, "Stack invalid! Dump:\n"); \
-    StackDump(self);                      \
-    return errCode;                       \
+    StackDump(self);                            \
+    return errCode;                             \
 } } while(0)
 
 
@@ -31,15 +32,18 @@ if (errCode != STACK_OK) {                \
 #define REHASH(self)
 #endif
 
+
 #ifdef STACK_HASH_CHECK
 
 StackHashT StackHash(Stack *stack) {
     const size_t mdShift = (size_t) &(((Stack *) 0)->mSize);
     const size_t mdEnd = (size_t) &(((Stack *) 0)->mHash);
+
     StackHashT result;
     result.mdHash = 0;
     result.dataHash = 0;
     if (!stack) return result;
+
     result.mdHash = hash(((char *) stack) + mdShift, mdEnd - mdShift);
     result.dataHash = hash(stack->mData, stack->mCapacity * sizeof(StackElem));
     return result;
@@ -96,17 +100,21 @@ const char *errorToString(StackError err) {
 void StackDump(Stack *self) {
     StackError errCode = StackValidate(self);
     fprintf(logfile, "Stack (%s) [0x%zX] {\n", errorToString(errCode), (size_t) self);
+
     if (errCode == STACK_NULL) {
         fprintf(logfile, "Data unavailable \n");
         fprintf(logfile, "}");
         return;
     }
+
 #ifdef STACK_MARKER_CHECK
     fprintf(logfile, "\t_beginMarker = %zX\n", self->_beginMarker);
 #endif
+
     fprintf(logfile, "\tmSize        = %zo\n", self->mSize);
     fprintf(logfile, "\tmCapacity    = %zo\n", self->mCapacity);
     fprintf(logfile, "\tmData [0x%zX] {\n", (size_t) self->mData);
+
     if (!self->mData) {
         fprintf(logfile, "\t\tData unavailable\n");
     } else {
@@ -130,6 +138,7 @@ void StackDump(Stack *self) {
 #ifdef STACK_MARKER_CHECK
     fprintf(logfile, "\t_endMarker = %zX\n", self->_endMarker);
 #endif
+
     fprintf(logfile, "}\n");
 }
 
@@ -138,10 +147,12 @@ StackError StackConstruct(Stack *self, size_t capacity) {
     if (capacity == 0) {
         return STACK_INVALID;
     }
+
     self->mCapacity = capacity;
     self->mSize = 0;
     self->mData = calloc(1, capacity * sizeof(StackElem) + 2 * MARKER_SIZE);
     if (!self->mData) return STACK_OUT_OF_MEMORY;
+
 #ifdef STACK_MARKER_CHECK
     self->_beginMarker = MARKER_CODE;
     self->_endMarker = MARKER_CODE;
@@ -157,10 +168,12 @@ StackError StackConstruct(Stack *self, size_t capacity) {
 Stack *StackNew(size_t capacity) {
     Stack *self = calloc(1, sizeof(*self));
     if (!self) return self;
+
     if (StackConstruct(self, capacity) != STACK_OK) {
         free(self);
         return NULL;
     }
+
     return self;
 }
 
@@ -183,6 +196,8 @@ StackError StackResize(Stack *self, size_t size) {
     data = realloc(data, size * sizeof(StackElem) + 2 * MARKER_SIZE);
     if (!data) return STACK_OUT_OF_MEMORY;
     self->mData = (StackElem *) (data + MARKER_SIZE);
+
+
 #ifdef STACK_MARKER_CHECK
     *((MarkerType *) (data + self->mCapacity * sizeof(StackElem) + MARKER_SIZE)) = MARKER_CODE;
 #endif
@@ -195,6 +210,7 @@ StackError StackResize(Stack *self, size_t size) {
 
 StackError StackPush(Stack *self, StackElem value) {
     ASSERT_OK(self);
+
     if (self->mCapacity <= self->mSize) {
         StackResize(self, self->mCapacity * 2);
     }
@@ -221,11 +237,13 @@ StackElem StackTop(Stack *self) {
         StackDump(self);
         return NAN;
     }
+
     if (self->mSize == 0) {
         fprintf(logfile, "Trying to read empty stack! Dump:\n");
         StackDump(self);
         return NAN;
     }
+
     return self->mData[self->mSize - 1];
 }
 
@@ -238,3 +256,5 @@ size_t StackSize(Stack *self) {
     return self->mSize;
 }
 
+#undef ASSERT_OK
+#undef REHASH

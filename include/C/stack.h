@@ -6,23 +6,23 @@
 #define STACK_MARKER_CHECK
 
 typedef double StackElem;
-
 #define STACK_ELEM_FORMAT "%lg"
 
 enum StackError_e {
     STACK_NULL, STACK_CORRUPT, STACK_INVALID, STACK_OUT_OF_MEMORY, STACK_OK
 };
+typedef enum StackError_e StackError;
 
 #ifdef STACK_MARKER_CHECK
 typedef size_t MarkerType;
 #endif
+
 
 #ifdef STACK_HASH_CHECK
 typedef struct {
     unsigned mdHash;
     unsigned dataHash;
 } StackHashT;
-
 #endif
 
 typedef struct {
@@ -42,11 +42,11 @@ typedef struct {
 #ifdef STACK_MARKER_CHECK
     MarkerType _endMarker;
 #endif
+
 } Stack;
 
-typedef enum StackError_e StackError;
 
-size_t StackSize(Stack * self);
+size_t StackSize(Stack *self);
 
 StackElem StackTop(Stack *self);
 
@@ -67,3 +67,7 @@ StackError StackConstruct(Stack *self, size_t capacity);
 void StackDump(Stack *self);
 
 StackError StackValidate(Stack *self);
+
+#ifdef STACK_HASH_CHECK
+StackHashT StackHash(Stack *stack);
+#endif

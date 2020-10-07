@@ -15,8 +15,17 @@ int main() {
     StackPush(&stack, 122);
     StackPush(&stack, 8626342);
 
-    printf("%lg", StackTop(&stack));
+    printf("%lg\n", StackTop(&stack));
     StackPop(&stack);
-    *(((char *) stack.mData) + 20) = 2;
+    StackPop(&stack);
+    StackPop(&stack);
+    StackPop(&stack);
+    StackPop(&stack);
+
     StackPush(&stack, 1);
+    StackDump(&stack);
+    double x =  StackTop(&stack);
+    printf("%lg", x);
+
 }
+//docs
