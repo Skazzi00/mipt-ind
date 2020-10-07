@@ -13,6 +13,7 @@ int main() {
     StackPush(&stack, 9823242);
     StackPush(&stack, 124322);
     StackPush(&stack, 122);
+    stack.mData = NULL;
     StackPush(&stack, 8626342);
 
     printf("%lg\n", StackTop(&stack));

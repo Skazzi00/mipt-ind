@@ -56,6 +56,9 @@ StackError StackValidate(Stack *self) {
     if (!self)
         return STACK_NULL;
 
+    if (!self->mData) {
+        return STACK_INVALID;
+    }
 #ifdef STACK_MARKER_CHECK
     if (self->_endMarker != MARKER_CODE || self->_beginMarker != MARKER_CODE) {
         return STACK_CORRUPT;
@@ -73,9 +76,7 @@ StackError StackValidate(Stack *self) {
     }
 #endif
 
-    if (!self->mData) {
-        return STACK_INVALID;
-    }
+
     if (self->mCapacity < self->mSize) {
         return STACK_INVALID;
     }
