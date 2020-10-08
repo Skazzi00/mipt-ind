@@ -108,7 +108,7 @@ void StackDump(Stack *self) {
     fprintf(logfile, "Stack (%s) [0x%zX] {\n", errorToString(errCode), (size_t) self);
 
     if (errCode == STACK_NULL) {
-        fprintf(logfile, "Data unavailable \n");
+        fprintf(logfile, "\tData unavailable \n");
         fprintf(logfile, "}");
         return;
     }
@@ -124,15 +124,19 @@ void StackDump(Stack *self) {
     if (!self->mData) {
         fprintf(logfile, "\t\tData unavailable\n");
     } else {
+
 #ifdef STACK_MARKER_CHECK
         fprintf(logfile, "\t\tbeginMarkerData = %zX\n", *((MarkerType *) self->mData - 1));
 #endif
+
         for (size_t i = 0; i < self->mCapacity; ++i) {
             fprintf(logfile, "\t\t[%zu] = " STACK_ELEM_FORMAT "\n", i, self->mData[i]);
         }
+
 #ifdef STACK_MARKER_CHECK
         fprintf(logfile, "\t\tendMarkerData = %zX\n", *((MarkerType *) (self->mData + self->mCapacity)));
 #endif
+
     }
     fprintf(logfile, "\t}\n");
 
