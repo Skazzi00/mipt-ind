@@ -251,6 +251,7 @@ StackError StackPop(Stack *self) {
 StackElem StackTop(Stack *self) {
     StackError errCode = StackValidate(self);
     if (errCode != STACK_OK) {
+        fprintf(logfile, "Stack invalid! Dump:\n");
         StackDump(self);
         return NAN;
     }
@@ -267,6 +268,7 @@ StackElem StackTop(Stack *self) {
 size_t StackSize(Stack *self) {
     StackError errCode = StackValidate(self);
     if (errCode != STACK_OK) {
+        fprintf(logfile, "Stack invalid! Dump:\n");
         StackDump(self);
         return NPOS;
     }
