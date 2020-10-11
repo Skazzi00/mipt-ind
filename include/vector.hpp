@@ -1,9 +1,12 @@
+#pragma once
+
 #include <cstdlib>
 #include <cstddef>
 #include <iterator>
 #include <new>
 #include <algorithm>
 
+#include "data_structures.hpp"
 
 namespace mipt {
     const size_t MIN_DATA_SIZE = 8;
@@ -31,36 +34,6 @@ namespace mipt {
         using reverse_iterator = std::reverse_iterator<iterator>;
         using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-        enum class Status {
-            OK = 0,
-            INVALID = 1,
-            CORRUPTED_STRUCT = 2,
-            CORRUPTED_DATA = 3,
-            NULL_PTR = 4,
-            NULL_DATA = 5
-        };
-
-    private:
-        static const char *statusToStr(Status st) {
-            switch (st) {
-                case Status::OK:
-                    return "OK";
-                case Status::INVALID:
-                    return "INVALID";
-                case Status::CORRUPTED_STRUCT:
-                    return "CORRUPTED STRUCT";
-                case Status::CORRUPTED_DATA:
-                    return "CORRUPTED DATA";
-                case Status::NULL_PTR:
-                    return "NULL POINTER";
-                case Status::NULL_DATA:
-                    return "DATA NULL POINTER";
-                default:
-                    return "UNKNOWN";
-            }
-        }
-
-    public:
 
         Vector() noexcept: mSize(0), mCapacity(0), mData(nullptr) {} // O(1)
 
@@ -312,14 +285,25 @@ namespace mipt {
         }
 
         template<typename PrintFunc>
-        friend void dump(Vector const *v, PrintFunc printFunc, FILE *logfile = stderr, Status status = Status::OK) {
-            fprintf(logfile, "Vector<%s> (%s) [0x%zX] {\n", typeid(value_type).name(), statusToStr(status),
-                    reinterpret_cast<size_t>(v));
+        friend void dump(Vector const *v, PrintFunc printFunc,
+                         Status status = Status::OK,
+                         FILE *logfile = stderr,
+                         int level = 0) {
+            fprintf(
+                    logfile,
+                    "%*s Vector<%s> (%s) [0x%zX] {\n",
+                    level, "\t",
+                    typeid(value_type).name(),
+                    statusToStr(status),
+                    reinterpret_cast<size_t>(v)
+            );
             if (!v) {
                 fprintf(
                         logfile,
-                        "\tData unavailable\n"
-                        "}\n"
+                        "%*s\tData unavailable\n"
+                        "%*s}\n",
+                        level, "\t",
+                        level, "\t"
                 );
                 return;
             }
@@ -327,53 +311,62 @@ namespace mipt {
 #ifdef MARKER_PROTECTION
             fprintf(
                     logfile,
-                    "\tbeginMarker  = %zX\n"
-                    "\tendMarker    = %zX\n",
+                    "%*s\tbeginMarker  = %zX\n"
+                    "%*s\tendMarker    = %zX\n",
+                    level, "\t",
                     v->beginMarker,
+                    level, "\t",
                     v->endMarker
             );
 #endif
 
             fprintf(
                     logfile,
-                    "\tmSize        = %zu\n"
-                    "\tmCapacity    = %zu\n"
-                    "\tmData [0x%zx] {\n",
+                    "%*s\tmSize        = %zu\n"
+                    "%*s\tmCapacity    = %zu\n"
+                    "%*s\tmData [0x%zx] {\n",
+                    level, "\t",
                     v->mSize,
+                    level, "\t",
                     v->mCapacity,
+                    level, "\t",
                     reinterpret_cast<size_t>(v->mData)
             );
             if (!v->mData) {
                 fprintf(
                         logfile,
-                        "\t\tData unavailable\n"
-                        "\t}\n"
+                        "%*s\t\tData unavailable\n"
+                        "%*s\t}\n",
+                        level, "\t",
+                        level, "\t"
                 );
             } else {
 
 #ifdef MARKER_PROTECTION
                 fprintf(
                         logfile,
-                        "\t\tbeginMarker = %zX\n"
-                        "\t\tendMarker   = %zX\n",
+                        "%*s\t\tbeginMarker = %zX\n"
+                        "%*s\t\tendMarker   = %zX\n",
+                        level, "\t",
                         *reinterpret_cast<const MarkerType *>(v->mData),
+                        level, "\t",
                         *reinterpret_cast<const MarkerType *>(v->data() + v->mCapacity)
                 );
 #endif
 
                 size_type size = v->mCapacity < MAX_PRINT_CNT ? v->mCapacity : MAX_PRINT_CNT;
                 for (size_type i = 0; i < size; ++i) {
-                    fprintf(logfile, "\t\t[%zu] = ", i);
+                    fprintf(logfile, "%*s\t\t[%zu] = ", level, "\t", i);
                     printFunc(logfile, (*v)[i]);
                     fprintf(logfile, "\n");
                 }
 
                 if (size < v->mCapacity) {
-                    fprintf(logfile, "\t\t...\n");
+                    fprintf(logfile, "%*s\t\t...\n", level, "\t");
                 }
-                fprintf(logfile, "\t}\n");
+                fprintf(logfile, "%*s\t}\n", level, "\t");
             }
-            fprintf(logfile, "}\n");
+            fprintf(logfile, "%*s}\n", level, "\t");
         }
 
     private:

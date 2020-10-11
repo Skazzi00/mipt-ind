@@ -1,6 +1,9 @@
+#pragma once
+
 #define MARKER_PROTECTION
 
 #include "vector.hpp"
+#include "data_structures.hpp"
 
 #undef MARKER_PROTECTION
 
@@ -13,46 +16,72 @@ namespace mipt {
         using reference = typename Container::reference;
         using const_reference = typename Container::const_reference;
 
-        Stack() : data() {}
+        Stack() : mData() {}
 
 
         reference top() {
-            return data.back();
+            return mData.back();
         }
 
         const_reference top() const {
-            return data.back();
+            return mData.back();
         }
 
         [[nodiscard]] size_type capacity() const {
-            return data.capacity();
+            return mData.capacity();
         }
 
         [[nodiscard]] size_type size() const {
-            return data.size();
+            return mData.size();
         }
 
         template<typename... Args>
         void emplace(Args &&... args) {
-            data.emplace_back(std::forward<Args>(args)...);
+            mData.emplace_back(std::forward<Args>(args)...);
         }
 
         void push(const_reference val) {
-            data.push_back(val);
+            mData.push_back(val);
         }
 
         void push(value_type &&val) {
-            data.push_back(std::move(val));
+            mData.push_back(std::move(val));
         }
 
         void pop() {
-            data.pop_back();
+            mData.pop_back();
         }
 
-        void swap(Stack & other) {
-            std::swap(data, other.data);
+        void swap(Stack &other) {
+            std::swap(mData, other.mData);
         }
+
+        friend Status validate(Stack const *stack) {
+            return validate(&stack->mData);
+        }
+
+        template<typename PrintFunc>
+        friend void dump(Stack const *st, PrintFunc printFunc,
+                         Status status = Status::OK,
+                         FILE *logfile = stderr,
+                         int level = 0) {
+            fprintf(logfile, "Stack<%s> (%s) [0x%zX] {\n", typeid(value_type).name(), statusToStr(status),
+                    reinterpret_cast<size_t>(st));
+            if (!st) {
+                fprintf(
+                        logfile,
+                        "\tData unavailable\n"
+                        "}\n"
+                );
+                return;
+            }
+            fprintf(logfile, "\tmData {\n");
+            dump(&st->mData, printFunc, status, logfile, level + 5);
+            fprintf(logfile, "\t}\n");
+            fprintf(logfile, "}\n");
+        }
+
     private:
-        Container data;
+        Container mData;
     };
 }
