@@ -168,13 +168,22 @@ namespace mipt {
             return data()[mSize - 1];
         }
 
-        void push_back(const_reference val) { // O(1)* strong
+        template<typename... Args>
+        void emplace_back(Args &&... args) {
             if (size() == capacity()) {
-                push_back_realloc(val);
+                emplace_back_realloc(std::forward<Args>(args)...);
             } else {
-                new(data() + size()) value_type(val);
+                new(data() + size()) value_type(std::forward<Args>(args)...);
                 mSize++;
             }
+        }
+
+        void push_back(const_reference val) { // O(1)* strong
+            emplace_back(val);
+        }
+
+        void push_back(value_type &&val) { // O(1)* strong
+            emplace_back(std::move(val));
         }
 
         void pop_back() noexcept { // O(1)
@@ -245,13 +254,22 @@ namespace mipt {
             return begin();
         }
 
-        iterator insert(const_iterator pos, const_reference val) { // O(N) weak
+        template<typename... Args>
+        iterator emplace(const_iterator pos, Args &&... args) {
             const difference_type posInd = pos - data();
-            push_back(val);
+            emplace_back(std::forward<Args>(args)...);
             for (auto i = static_cast<difference_type>(size() - 1); i != posInd; i--) {
                 std::swap(data()[i], data()[i - 1]);
             }
             return begin() + posInd;
+        }
+
+        iterator insert(const_iterator pos, const_reference val) { // O(N) weak
+            return emplace(pos, val);
+        }
+
+        iterator insert(const_iterator pos, value_type &&val) { // O(N) weak
+            return emplace(pos, std::move(val));
         }
 
         iterator erase(const_iterator pos) { // O(N) weak
@@ -359,13 +377,14 @@ namespace mipt {
         }
 
     private:
-        void push_back_realloc(const_reference val) { // O(1)* strong
+        template<typename... Args>
+        void emplace_back_realloc(Args &&... args) {
             Vector<value_type> tmp;
             tmp.reserve(calc_new_capacity());
             for (size_type i = 0; i < size(); i++) {
-                tmp.push_back(data()[i]);
+                tmp.emplace_back(data()[i]);
             }
-            tmp.push_back(val);
+            tmp.emplace_back(std::forward<Args>(args)...);
             swap(tmp);
         }
 

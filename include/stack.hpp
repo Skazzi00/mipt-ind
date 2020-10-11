@@ -32,14 +32,26 @@ namespace mipt {
             return data.size();
         }
 
+        template<typename... Args>
+        void emplace(Args &&... args) {
+            data.emplace_back(std::forward<Args>(args)...);
+        }
+
         void push(const_reference val) {
             data.push_back(val);
+        }
+
+        void push(value_type &&val) {
+            data.push_back(std::move(val));
         }
 
         void pop() {
             data.pop_back();
         }
 
+        void swap(Stack & other) {
+            std::swap(data, other.data);
+        }
     private:
         Container data;
     };
