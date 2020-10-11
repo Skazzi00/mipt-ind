@@ -25,7 +25,7 @@ int main() {
 
     StackPush(&stack, 1);
     StackDump(&stack);
-    double x =  StackTop(&stack);
+    double x = StackTop(&stack);
     printf("%lg", x);
 
 }

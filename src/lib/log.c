@@ -2,7 +2,7 @@
 
 #include "log.h"
 
-FILE *logfile;
+FILE *logfile = NULL;
 
 void initLog(FILE* file) {
     logfile = file;

@@ -229,7 +229,11 @@ StackError StackPush(Stack *self, StackElem value) {
     ASSERT_OK(self);
 
     if (self->mCapacity <= self->mSize) {
-        StackResize(self, self->mCapacity * 2);
+        StackError err = StackResize(self, self->mCapacity * 2);
+        if (err != STACK_OK) {
+            StackDump(self);
+            return err;
+        }
     }
     self->mData[self->mSize++] = value;
 
