@@ -5,7 +5,10 @@
 #include <iterator>
 #include <new>
 #include <algorithm>
+#include <functional>
 
+
+#include "hash_combine.hpp"
 #include "data_structures.hpp"
 
 namespace mipt {
@@ -40,9 +43,11 @@ namespace mipt {
 
         void swap(Vector &other) noexcept { // O(1)
             using std::swap;
+
             swap(mData, other.mData);
             swap(mSize, other.mSize);
             swap(mCapacity, other.mCapacity);
+
 #ifdef MARKER_PROTECTION
             swap(beginMarker, other.beginMarker);
             swap(endMarker, other.endMarker);
@@ -369,6 +374,8 @@ namespace mipt {
             fprintf(logfile, "%*s}\n", level, "\t");
         }
 
+        friend std::hash<Vector>;
+
     private:
         template<typename... Args>
         void emplace_back_realloc(Args &&... args) {
@@ -404,5 +411,21 @@ namespace mipt {
 #ifdef MARKER_PROTECTION
         MarkerType endMarker = MARKER_VALUE;
 #endif
+    };
+}
+
+namespace std {
+    template<typename T>
+    struct hash<mipt::Vector<T>> {
+        std::size_t operator()(mipt::Vector<T> const &v) {
+            std::size_t seed = 0;
+            mipt::hash_combine(seed, v.mSize);
+            mipt::hash_combine(seed, v.mData);
+            mipt::hash_combine(seed, v.mData);
+            for (auto item : v) {
+                mipt::hash_combine(seed, item);
+            }
+            return seed;
+        }
     };
 }
