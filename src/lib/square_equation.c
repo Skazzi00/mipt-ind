@@ -1,6 +1,9 @@
 #include <assert.h>
 #include <math.h>
 
+#ifdef CPP
+#include <cmath>
+#endif
 #include "square_equation.h"
 
 #define EPS 1e-6
