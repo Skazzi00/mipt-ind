@@ -6,6 +6,8 @@ Ilya Dedinsky's Industrial Programming Course
 
  - [Quadratic equation](https://github.com/Skazzi00/mipt-ind/blob/master/src/C/square.c)
  - [Onegin](https://github.com/Skazzi00/mipt-ind/blob/master/src/C/sort.c)
+ - [Vector](https://github.com/Skazzi00/mipt-ind/blob/master/include/vector.hpp)
+ - [CheckedStack](https://github.com/Skazzi00/mipt-ind/blob/master/include/stack.hpp)
  
 ## Prerequisites 
 

@@ -3,13 +3,11 @@
 #include <cstdio>
 
 #define MARKER_PROTECTION
+#define HASH_PROTECTION
 
 #include "vector.hpp"
 #include "data_structures.hpp"
 
-#undef MARKER_PROTECTION
-
-#define HASH_PROTECTION
 
 #ifdef HASH_PROTECTION
 #define REHASH() do{ mHash = std::hash<Container>{}(mData); } while (0)
