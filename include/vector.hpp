@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <functional>
 
-
+#include "print_file.hpp"
 #include "hash_combine.hpp"
 #include "data_structures.hpp"
 
@@ -289,8 +289,7 @@ namespace mipt {
             return Status::OK;
         }
 
-        template<typename PrintFunc>
-        friend void dump(Vector const *v, PrintFunc printFunc,
+        friend void dump(Vector const *v,
                          Status status = Status::OK,
                          FILE *logfile = stderr,
                          int level = 0) {
@@ -362,7 +361,7 @@ namespace mipt {
                 size_type size = v->mCapacity < MAX_PRINT_CNT ? v->mCapacity : MAX_PRINT_CNT;
                 for (size_type i = 0; i < size; ++i) {
                     fprintf(logfile, "%*s\t\t[%zu] = ", level, "\t", i);
-                    printFunc(logfile, (*v)[i]);
+                    printToFile(logfile, (*v)[i]);
                     fprintf(logfile, "\n");
                 }
 
@@ -420,7 +419,7 @@ namespace std {
         std::size_t operator()(mipt::Vector<T> const &v) {
             std::size_t seed = 0;
             mipt::hash_combine(seed, v.mSize);
-            mipt::hash_combine(seed, v.mData);
+            mipt::hash_combine(seed, v.mCapacity);
             mipt::hash_combine(seed, v.mData);
             for (auto item : v) {
                 mipt::hash_combine(seed, item);

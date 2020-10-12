@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdio>
+
 #define MARKER_PROTECTION
 
 #include "vector.hpp"
@@ -7,65 +9,100 @@
 
 #undef MARKER_PROTECTION
 
+#define HASH_PROTECTION
+
+#ifdef HASH_PROTECTION
+#define REHASH() do{ mHash = std::hash<Container>{}(mData); } while (0)
+#else
+#define REHASH()
+#endif
+
+#define ASSERT_OK()                                         \
+    do {                                                    \
+        Status status = validate(this);                     \
+        if (status != Status::OK) {                         \
+            dump(this, status);                   \
+            throw std::runtime_error(statusToStr(status));  \
+        }                                                   \
+    } while(0)                                              \
+
+#define WRAP_ASSERT(statement) \
+         do {                  \
+            ASSERT_OK();       \
+            statement;         \
+            REHASH();          \
+            ASSERT_OK();       \
+         }while(0)
+
+
 namespace mipt {
     template<typename T, typename Container = Vector<T>>
-    struct Stack {
+    struct CheckedStack {
         using container_type = Container;
         using value_type = typename Container::value_type;
         using size_type = typename Container::size_type;
         using reference = typename Container::reference;
         using const_reference = typename Container::const_reference;
 
-        Stack() : mData() {}
 
-
-        reference top() {
-            return mData.back();
+        explicit CheckedStack() : mData() {
+            REHASH();
         }
 
-        const_reference top() const {
+
+        value_type top() const {
+            ASSERT_OK();
             return mData.back();
         }
 
         [[nodiscard]] size_type capacity() const {
+            ASSERT_OK();
             return mData.capacity();
         }
 
         [[nodiscard]] size_type size() const {
+            ASSERT_OK();
             return mData.size();
         }
 
         template<typename... Args>
         void emplace(Args &&... args) {
-            mData.emplace_back(std::forward<Args>(args)...);
+            WRAP_ASSERT(mData.emplace_back(std::forward<Args>(args)...));
         }
 
         void push(const_reference val) {
-            mData.push_back(val);
+            WRAP_ASSERT(mData.push_back(val));
         }
 
         void push(value_type &&val) {
-            mData.push_back(std::move(val));
+            WRAP_ASSERT(mData.push_back(std::move(val)));
         }
 
         void pop() {
-            mData.pop_back();
+            WRAP_ASSERT(mData.pop_back());
         }
 
-        void swap(Stack &other) {
-            std::swap(mData, other.mData);
+        void swap(CheckedStack &other) {
+            WRAP_ASSERT(std::swap(mData, other.mData));
         }
 
-        friend Status validate(Stack const *stack) {
+        friend Status validate(CheckedStack const *stack) {
+            if (!stack) {
+                return Status::NULL_PTR;
+            }
+#ifdef HASH_PROTECTION
+            if (stack->mHash != std::hash<Container>{}(stack->mData)) {
+                return Status::CORRUPTED_HASH;
+            }
+#endif
             return validate(&stack->mData);
         }
 
-        template<typename PrintFunc>
-        friend void dump(Stack const *st, PrintFunc printFunc,
+        friend void dump(CheckedStack const *st,
                          Status status = Status::OK,
                          FILE *logfile = stderr,
                          int level = 0) {
-            fprintf(logfile, "Stack<%s> (%s) [0x%zX] {\n", typeid(value_type).name(), statusToStr(status),
+            fprintf(logfile, "CheckedStack<%s> (%s) [0x%zX] {\n", typeid(value_type).name(), statusToStr(status),
                     reinterpret_cast<size_t>(st));
             if (!st) {
                 fprintf(
@@ -75,13 +112,27 @@ namespace mipt {
                 );
                 return;
             }
+#ifdef HASH_PROTECTION
+            fprintf(logfile, "\tmHash = %zX ", st->mHash);
+            if (status == Status::CORRUPTED_HASH) {
+                fprintf(logfile, "(ACTUAL = %zX)", std::hash<Container>{}(st->mData));
+            }
+            fprintf(logfile, "\n");
+#endif
             fprintf(logfile, "\tmData {\n");
-            dump(&st->mData, printFunc, status, logfile, level + 5);
+            dump(&st->mData, status, logfile, level + 5); // + 5 for proper tabulation
             fprintf(logfile, "\t}\n");
             fprintf(logfile, "}\n");
         }
 
     private:
         Container mData;
+
+#ifdef HASH_PROTECTION
+        std::size_t mHash;
+#endif
     };
 }
+
+#undef ASSERT_OK
+#undef WRAP_ASSERT

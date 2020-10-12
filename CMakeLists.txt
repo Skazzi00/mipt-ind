@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.17)
 project(mipt_ind)
 
 set(CMAKE_CXX_STANDARD 17)
-set(COMMON_FLAGS "-Werror -Wall -Wextra -pedantic -Wshadow -Wconversion -Wsign-conversion -fsanitize=address -Wignored-qualifiers -Wwrite-strings -DFAST_IOSTREAM")
+set(COMMON_FLAGS "-Werror -Wall -Wextra -pedantic -Wshadow -Wconversion -Wsign-conversion  -Wignored-qualifiers -Wwrite-strings -DFAST_IOSTREAM")
 set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++17")
 set(CMAKE_C_FLAGS ${COMMON_FLAGS})
 
@@ -43,3 +43,5 @@ add_executable(format_file src/format_file.cpp)
 add_executable(stack_ex src/stack_ex.c)
 
 target_link_libraries(stack_ex miptLib)
+
+add_executable(CheckedStack src/CheckedStack.cpp)
