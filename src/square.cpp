@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "square_equation.hpp"
-#include "stack.hpp"
+
 namespace {
     void solveEquation(std::istream &in = std::cin, std::ostream &out = std::cout) {
         using namespace se;
