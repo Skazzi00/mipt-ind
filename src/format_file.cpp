@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <regex>
 
 #include "onegin.hpp"
 
@@ -15,15 +16,9 @@ int main(int argc, const char **argv) {
         if (!line.empty())
             lines.emplace_back(std::move(line));
     }
+    std::regex russian("[а-яА-Я]");
     for (const auto &str : lines) {
-        bool flag = false;
-        for (const auto ch : str) {
-            if (("а" <= std::string(1, ch) && std::string(1, ch) <= "я") ) {
-                flag = true;
-                break;
-            }
-        }
-        if (flag) {
+        if (std::regex_search(str.begin(), str.end(), russian)) {
             std::cout << str << std::endl;
          }
     }
