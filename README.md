@@ -4,8 +4,8 @@ Ilya Dedinsky's Industrial Programming Course
 
 ## Contents
 
- - [Quadratic equation](https://github.com/Skazzi00/mipt-ind/blob/master/src/C/square.c)
- - [Onegin](https://github.com/Skazzi00/mipt-ind/blob/master/src/C/sort.c)
+ - [Quadratic equation](https://github.com/Skazzi00/mipt-ind/blob/master/src/square.c)
+ - [Onegin](https://github.com/Skazzi00/mipt-ind/blob/master/src/sort.c)
  - [Vector](https://github.com/Skazzi00/mipt-ind/blob/master/include/vector.hpp)
  - [CheckedStack](https://github.com/Skazzi00/mipt-ind/blob/master/include/stack.hpp)
  
