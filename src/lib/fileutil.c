@@ -6,7 +6,7 @@
 #include "fileutil.h"
 #include "strutil.h"
 
-static inline long getFileSize(FILE *file) {
+long getFileSize(FILE *file) {
     assert(file);
 
     errno = 0;

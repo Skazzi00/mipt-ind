@@ -9,11 +9,11 @@ enum STATUS_CODE {
 typedef enum STATUS_CODE STATUS_CODE_E;
 
 typedef struct {
-    size_t linesCnt;
-    strView_t *lines;
-    str_t _rawData;
+    size_t        linesCnt;
+    strView_t     *lines;
+    str_t         _rawData;
     STATUS_CODE_E status;
-} fileMeta_t;
+}                        fileMeta_t;
 
 /*!
  * Read lines from UTF-8 file
@@ -40,4 +40,6 @@ FILE *fopenChecked(const char *filename, const char *mode);
  * getFileMeta() with error handling
  */
 fileMeta_t getFileMetaChecked(FILE *file);
+
+long getFileSize(FILE *file);
 

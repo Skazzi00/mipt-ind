@@ -2,8 +2,6 @@
 
 #include "stack.hpp"
 
-
-
 int main() {
     using namespace mipt;
     CheckedStack<int> stack;

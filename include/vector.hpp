@@ -40,6 +40,13 @@ namespace mipt {
 
         Vector() noexcept: mSize(0), mCapacity(0), mData(nullptr) {} // O(1)
 
+        Vector(size_t size) : Vector() {
+            reserve(size);
+            for (size_t i = 0; i < size; ++i) {
+                 push_back(T());
+            }
+        }
+
 
         void swap(Vector &other) noexcept { // O(1)
             using std::swap;

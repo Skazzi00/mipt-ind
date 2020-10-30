@@ -19,7 +19,7 @@ namespace se {
                 Zero,
                 One,
                 Two
-            } numberOfRoots;
+            }      numberOfRoots;
             double firstRoot;
             double secondRoot;
         };

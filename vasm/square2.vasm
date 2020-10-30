@@ -1,0 +1,7 @@
+in rax
+in rbx
+push rax
+push rbx
+add
+out
+hlt

@@ -5,7 +5,7 @@
 #define STACK_HASH_CHECK
 #define STACK_MARKER_CHECK
 
-typedef double StackElem;
+typedef double            StackElem;
 #define STACK_ELEM_FORMAT "%lg"
 
 enum StackError_e {
@@ -27,7 +27,7 @@ typedef size_t MarkerType;
 typedef struct {
     unsigned mdHash;
     unsigned dataHash;
-} StackHashT;
+}              StackHashT;
 #endif
 
 typedef struct {
@@ -36,8 +36,8 @@ typedef struct {
     MarkerType _beginMarker;
 #endif
 
-    size_t mSize;
-    size_t mCapacity;
+    size_t    mSize;
+    size_t    mCapacity;
     StackElem *mData;
 
 #ifdef STACK_HASH_CHECK

@@ -9,8 +9,8 @@ enum SolutionType {
 
 typedef struct {
     enum SolutionType type;
-    double firstRoot;
-    double secondRoot;
+    double            firstRoot;
+    double            secondRoot;
 } Solution;
 
 typedef struct {

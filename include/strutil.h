@@ -2,11 +2,11 @@
 
 typedef struct {
     size_t length;
-    char *data;
+    char   *data;
 } str_t;
 
 typedef struct {
-    size_t length;
+    size_t     length;
     const char *data;
 } strView_t;
 

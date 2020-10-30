@@ -84,6 +84,15 @@ namespace mipt {
             WRAP_ASSERT(std::swap(mData, other.mData));
         }
 
+        void shrink_to_fit() {
+            WRAP_ASSERT(mData.shrink_to_fit());
+        }
+
+        T *data() {
+            ASSERT_OK();
+            return mData.data();
+        }
+
         friend Status validate(CheckedStack const *stack) {
             if (!stack) {
                 return Status::NULL_PTR;
