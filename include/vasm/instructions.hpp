@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstring>
+#include <string>
 
 #include "vasm/errors.hpp"
 
@@ -22,7 +23,8 @@ namespace mipt::vasm {
             #include "instructions.inl"
 
             default:
-                throw parse_error("Unknown instruction");
+                throw parse_error(std::string("Unknown instruction")
+                                          .append(std::to_string(static_cast<unsigned>(i))));
         }
     }
 

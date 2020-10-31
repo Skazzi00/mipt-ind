@@ -36,6 +36,7 @@ namespace mipt::vasm {
             #include "registers.inl"
         }
 
-        throw parse_error("Not a register");
+        throw parse_error(std::string("Not a register:")
+                                  .append(std::to_string(static_cast<unsigned>(reg))));
     }
 }

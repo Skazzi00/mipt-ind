@@ -30,9 +30,9 @@ namespace mipt::vasm {
                 }
 
                 #define INST(name, code, _, execCode)      \
-                    case code:                         \
-                    ptr++;                             \
-                    execCode                           \
+                    case code:                             \
+                    ptr++;                                 \
+                    execCode                               \
                     break;
 
                 #include "instructions.inl"

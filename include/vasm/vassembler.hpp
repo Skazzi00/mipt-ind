@@ -12,21 +12,33 @@
 
 namespace mipt::vasm {
 
+    void replaceComments(char *data) {
+        bool needReplace = false;
+        while (*data) {
 
+            if (*data == '\n') {
+                needReplace = false;
+            }
+            if (*data == COMMENT) {
+                needReplace = true;
+            }
+
+            if (needReplace) {
+                *data = ' ';
+            }
+            data++;
+        }
+    }
 
     struct ParsedData {
         Vector<Label> labels;
         Vector<string_view> tokens;
 
         explicit ParsedData(char *data) : labels(), tokens() {
+            replaceComments(data);
             string_view token = strtok(data, " \n");
             size_t addr = 0;
             while (token.data()) {
-                if (token[0] == COMMENT) {
-                    token = strtok(nullptr, "\n");
-                    token = strtok(nullptr, " \n");
-                    continue;
-                }
                 if (token[token.length() - 1] == ':') {
                     labels.emplace_back(string_view(token, token.length() - 1), addr);
                     token = strtok(nullptr, " \n");
@@ -34,18 +46,17 @@ namespace mipt::vasm {
                 }
                 bool isParsed = false;
 
-                #define INST_DOUBLE addr += sizeof(double); \
-                tokens.push_back(token = strtok(nullptr, " \n"));
+                const auto skipAndAddToken = [&addr, &token, this] (size_t size) {
+                    addr += size;
+                    tokens.push_back(token = strtok(nullptr, " \n"));
+                };
 
-                #define INST_REGISTER addr++; \
-                tokens.push_back(token = strtok(nullptr, " \n"));
-
-                #define INST_LABEL addr += sizeof(size_t); \
-                tokens.push_back(token = strtok(nullptr, " \n"));
-
+                #define INST_DOUBLE skipAndAddToken(sizeof(double));
+                #define INST_REGISTER skipAndAddToken(1);
+                #define INST_LABEL skipAndAddToken(sizeof(size_t));
                 #define INST_COMPLEX parseComplex();
 
-                const auto parseComplex = [&token, &addr, this]() {
+                const auto parseComplex = [&token, &addr, this] () {
                     token = strtok(nullptr, " \n");
                     bool reg = false;
                     bool num = false;
@@ -75,19 +86,27 @@ namespace mipt::vasm {
                 #include "instructions.inl"
 
                 if (!isParsed) {
-                    throw parse_error("Unknown instruction");
+                    throw parse_error(std::string("Unknown instruction: ").append(token));
                 }
                 token = strtok(nullptr, " \n");
             }
         }
     };
 
-
+    template<typename T>
+    void pushToByteCode(CheckedStack<unsigned char> & byteCode, T * valPtr) {
+        auto ptr = reinterpret_cast<const unsigned char *>(valPtr);
+        for(size_t i = 0; i < sizeof(T); ++i) {
+            byteCode.push(*ptr);
+            ptr++;
+        }
+    }
 
     CheckedStack<unsigned char> compile(char *data) {
         CheckedStack<unsigned char> byteCode;
         auto parsed = ParsedData(data);
         auto curToken = parsed.tokens.begin();
+
 
         const auto parseRegister = [&curToken, &byteCode]() {
             curToken++;
@@ -98,22 +117,14 @@ namespace mipt::vasm {
         const auto parseDouble = [&curToken, &byteCode]() {
             curToken++;
             double num = strtod(*curToken, nullptr);
-            auto ptr = reinterpret_cast<unsigned char *>(&num);
-            for (size_t i = 0; i < sizeof(num); ++i) {
-                byteCode.push(*ptr);
-                ptr++;
-            }
+            pushToByteCode(byteCode, &num);
         };
 
         const auto parseLabel = [&curToken, &byteCode, &parsed]() {
             curToken++;
             for (const auto & label : parsed.labels) {
                 if (label.name == *curToken) {
-                    auto ptr = reinterpret_cast<const unsigned char *>(&label.address);
-                    for (size_t i = 0; i < sizeof(label.address); ++i) {
-                        byteCode.push(*ptr);
-                        ptr++;
-                    }
+                    pushToByteCode(byteCode, &label.address);
                     return;
                 }
             }
@@ -126,10 +137,12 @@ namespace mipt::vasm {
             Register reg;
             double number = 0;
             size_t pos = 0;
+
             if (tok[0] == '[' && tok[tok.length() - 1] == ']') {
                 mask |= static_cast<unsigned char>(ComplexMask::MEMORY);
                 pos++;
             }
+
             size_t regLength = 0;
             while (pos + regLength < tok.length() && isalpha(tok[pos + regLength])) {
                 regLength++;
@@ -153,11 +166,7 @@ namespace mipt::vasm {
             }
 
             if (mask & static_cast<unsigned char>(ComplexMask::NUMBER)) {
-                auto ptr = reinterpret_cast<unsigned char *>(&number);
-                for (size_t i = 0; i < sizeof(number); ++i) {
-                    byteCode.push(*ptr);
-                    ptr++;
-                }
+                pushToByteCode(byteCode, &number);
             }
         };
 
