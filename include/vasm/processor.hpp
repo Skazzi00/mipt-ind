@@ -190,7 +190,7 @@ namespace mipt::vasm {
                         break;
 
                     case Instruction::draw: {
-                        const unsigned windowSize = static_cast<const unsigned>(sqrt(gMem));
+                        const unsigned windowSize = static_cast<const unsigned>(sqrt(static_cast<double>(gMem)));
                         sf::RenderWindow window(sf::VideoMode(windowSize, windowSize), "My window");
                         sf::RectangleShape rectangle(sf::Vector2f(PIXEL_SIZE, PIXEL_SIZE));
 
