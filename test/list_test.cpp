@@ -20,6 +20,20 @@ TEST(ListCorrectness, push_back) {
     element<size_t>::expect_no_instances();
 }
 
+TEST(ListCorrectness, push_front) {
+    size_t const N = 5000;
+    {
+        List<element<size_t> > a;
+        for (size_t i = 0; i != N; ++i)
+            a.push_front(i);
+
+        for (size_t i = 0; i != N; ++i)
+            EXPECT_EQ(N - 1 - i, *a.get(i));
+    }
+
+    element<size_t>::expect_no_instances();
+}
+
 TEST(ListCorrectness, push_back_from_self) {
     size_t const N = 500;
     {
@@ -124,7 +138,7 @@ TEST(ListCorrectness, pop_back) {
     element<size_t>::expect_no_instances();
 }
 
-TEST(ListCorrectness, insert_begin) {
+TEST(ListCorrectness, emplace_begin) {
     size_t const N = 500;
     {
         List<element<size_t> > a;
@@ -139,7 +153,7 @@ TEST(ListCorrectness, insert_begin) {
     element<size_t>::expect_no_instances();
 }
 
-TEST(ListCorrectness, insert_end) {
+TEST(ListCorrectness, emplace_end) {
     size_t const N = 500;
     {
         List<element<size_t> > a;
