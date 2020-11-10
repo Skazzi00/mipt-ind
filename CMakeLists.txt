@@ -53,8 +53,6 @@ add_executable(stack_ex src/stack_ex.c)
 
 target_link_libraries(stack_ex miptLib)
 
-add_executable(CheckedStack src/CheckedStack.cpp)
-
 add_executable(Processor src/processor.cpp)
 
 target_link_libraries(Processor miptLib sfml-graphics sfml-window sfml-system)
