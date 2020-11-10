@@ -1,0 +1,105 @@
+;640000 begin of video memory 800x800
+push 4228890879 ; White color
+top rcl ; color
+pop
+
+in rad
+
+push 0.78539816339 ; pi / 4 конец цикла
+push 0 ; начало цикла
+circle_begin_loop:
+jg circle_end_loop
+top rex
+
+push rex
+cos
+push rad
+mul
+top rax
+
+push rex
+sin
+push rad
+mul
+top rbx
+
+call drawPoint
+
+push rbx
+push rax
+call drawPoint
+
+push rax
+push -1
+mul
+push rbx
+call drawPoint
+
+push rbx
+push -1
+mul
+push rax
+call drawPoint
+
+push rax
+push rbx
+push -1
+mul
+call drawPoint
+
+push rbx
+push rax
+push -1
+mul
+call drawPoint
+
+push rax
+push -1
+mul
+push rbx
+push -1
+mul
+call drawPoint
+
+push rbx
+push -1
+mul
+push rax
+push -1
+mul
+call drawPoint
+
+push 0.0001
+add
+jmp circle_begin_loop
+circle_end_loop:
+draw
+hlt
+
+drawPoint: ; Сначала на стеке y потом x
+    round
+    top rcy
+    pop
+    round
+
+    push 400
+    add
+
+    push rcy
+    push 400
+    add
+
+    push 800
+    mul
+
+    add
+
+    push 640000
+    add
+    top rg ; gMem + (y + 400) * 800 + (x + 400)
+    pop
+    push rcl
+    top [rg]
+    pop
+    ret
+

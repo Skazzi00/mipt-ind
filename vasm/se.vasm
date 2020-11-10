@@ -1,0 +1,115 @@
+in rax
+in rbx
+in rcx
+
+push rax
+jz linearOrInfOrNan
+
+
+
+push 4
+push rax
+push rcx
+
+mul
+mul
+
+push rbx
+push rbx
+mul
+
+sub
+push 0
+jg NoSolution
+pop
+jz OneSolution
+
+sqrt
+
+top rdx
+
+
+
+pop
+push 2
+out
+pop
+
+push rax
+push 2
+mul
+
+push rdx
+push rbx
+inv
+add
+
+div
+
+out
+pop
+
+push rax
+push 2
+mul
+
+push rdx
+push rbx
+inv
+sub
+
+div
+
+out
+
+hlt
+
+linearOrInfOrNan:
+    pop
+    push rbx
+    jz InfOrNan
+    jmp linear
+
+InfOrNan:
+    pop
+    push rcx
+    jz Inf
+    push 0
+    out
+    hlt
+
+Inf:
+    pop
+    push 0
+    push 1
+    div
+    out
+    hlt
+
+linear:
+    pop
+    push 1
+    out
+    push rbx
+    push rcx
+    inv
+    div
+    out
+    hlt
+
+NoSolution:
+    push 0
+    out
+    hlt
+
+OneSolution:
+    push 1
+    out
+    push rax
+    push 2
+    mul
+    push rbx
+    inv
+    div
+    out
+    hlt

@@ -1,0 +1,25 @@
+in rax
+
+push rax
+
+call fact
+
+out
+hlt
+
+fact:
+    push 1
+    jle rec
+    pop
+    pop
+    push 1
+    ret
+rec:
+    pop
+    top rax
+    push 1
+    push rax
+    sub
+    call fact
+    mul
+    ret
