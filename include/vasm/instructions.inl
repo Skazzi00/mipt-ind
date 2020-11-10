@@ -42,6 +42,7 @@ INST(jz,    0xC2, 1, INST_LABEL)
 INST(jg,    0xC3, 1, INST_LABEL)
 INST(jle,   0xC4, 1, INST_LABEL)
 INST(call,  0xCF, 1, INST_LABEL)
+INST(meow,  0xAA, 0, SKIP)
 INST(ret,   0xCE, 0, SKIP)
 INST(draw,  0xDA, 0, SKIP)
 

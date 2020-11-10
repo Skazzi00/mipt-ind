@@ -1,12 +1,20 @@
 #include <cstdio>
 
 #include "stack.hpp"
+#include <utility>
+#include "list.hpp"
+int cnt=  0;
+struct NonCopyable {
+    int a;
+    NonCopyable() {}
+    NonCopyable(const NonCopyable &) = default;
+    NonCopyable(NonCopyable &&) = delete;
+};
 
 int main() {
     using namespace mipt;
-    CheckedStack<int> stack;
-    stack.push(123);
-    stack.push(367);
-    *((char*)&stack + 8)  = 14;
-    printf("%d", stack.top());
+    List<int>::Node a;
+    List<int>::Node b;
+    b.linkPrev(a);
+
 }

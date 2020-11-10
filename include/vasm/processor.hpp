@@ -153,6 +153,14 @@ namespace mipt::vasm {
                         jump();
                         break;
 
+                    case Instruction::meow:
+                        stackOp<1>([](WordType top)  -> WordType {
+                            for(int i = 0; i < top; i++) {
+                                system("say meow");
+                            }
+                            return top;
+                        });
+                        break;
                     case Instruction::jz:
                         jumpIfStack<1>([](WordType top) -> bool {
                             return top == 0.;

@@ -178,7 +178,7 @@ namespace mipt {
         [[nodiscard]] bool empty() const noexcept { // O(1)
             return size() == 0;
         }
-
+        template<typename B = T, typename = std::enable_if_t<std::is_move_constructible_v<B>>>
         void reserve(size_t newCapacity) { // O(N) strong
             if (newCapacity <= capacity()) return;
 
@@ -190,7 +190,24 @@ namespace mipt {
             tmp.mCapacity = newCapacity;
 
             for (size_t i = 0; i < mSize; i++) {
-                tmp.push_back(data()[i]);
+                tmp.emplace_back(std::move(data()[i]));
+            }
+            swap(tmp);
+        }
+
+        template<typename B = T, typename std::enable_if_t<std::is_copy_constructible_v<B> && !std::is_move_constructible_v<B>> * = nullptr>
+        void reserve(size_t newCapacity) { // O(N) strong
+            if (newCapacity <= capacity()) return;
+
+            Vector<value_type> tmp;
+            tmp.mData = static_cast<pointer>(operator new(newCapacity * sizeof(value_type) + 2 * MARKER_SIZE));
+#ifdef MARKER_PROTECTION
+            setMarkers(tmp.mData, newCapacity);
+#endif
+            tmp.mCapacity = newCapacity;
+
+            for (size_t i = 0; i < mSize; i++) {
+                tmp.emplace_back(data()[i]);
             }
             swap(tmp);
         }
@@ -383,7 +400,18 @@ namespace mipt {
         friend std::hash<Vector>;
 
     private:
-        template<typename... Args>
+        template<typename B = T, typename... Args, typename = std::enable_if_t<std::is_move_constructible_v<B>>>
+        void emplace_back_realloc(Args &&... args) {
+            Vector<value_type> tmp;
+            tmp.reserve(calc_new_capacity());
+            for (size_type i = 0; i < size(); i++) {
+                tmp.emplace_back(std::move(data()[i]));
+            }
+            tmp.emplace_back(std::forward<Args>(args)...);
+            swap(tmp);
+        }
+
+        template<typename B = T,typename... Args, typename std::enable_if_t<std::is_copy_constructible_v<B> && !std::is_move_constructible_v<B>> * = nullptr>
         void emplace_back_realloc(Args &&... args) {
             Vector<value_type> tmp;
             tmp.reserve(calc_new_capacity());
