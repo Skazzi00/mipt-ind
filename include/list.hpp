@@ -15,7 +15,6 @@ namespace mipt {
         template<typename ItT, typename NodeType>
         struct Iterator;
     public:
-        static const size_t MIN_SIZE = 16;
 
         struct FakeNode {
             FakeNode *next;
@@ -32,7 +31,6 @@ namespace mipt {
             Node() : FakeNode(), value() {}
 
             Node(T val) : FakeNode(), value(val) {}
-
 
             Node(const Node &) = delete;
 
@@ -82,14 +80,7 @@ namespace mipt {
         using iterator = Iterator<T, List<T>::Node>;
         using const_iterator = Iterator<const T, const List<T>::Node>;
 
-        List() : mData(MIN_SIZE), mSize(0), free(), head(), optimized(false) {
-            FakeNode *prev = &free;
-            for (Node &item : mData) {
-                linkNodes(prev, &item);
-                prev = &item;
-            }
-            linkNodes(prev, &free);
-        }
+        List() : mData(), mSize(0), free(), head(), optimized(false) {}
 
         List(const List &other) : mData(), mSize(0), free(), head(), optimized(true) {
             FakeNode *prev = &head;
@@ -102,74 +93,46 @@ namespace mipt {
             linkNodes(prev, &head);
         }
 
-        List &operator=(const List &other) noexcept { // O(1)
+        List &operator=(const List &other) noexcept {
             List tmp(other);
             swap(tmp);
             return *this;
         }
 
-        List(List &&other) noexcept: List() { // O(1)
+        List(List &&other) noexcept: List() {
             swap(other);
         }
 
-        List &operator=(List &&other) noexcept { // O(1)
+        List &operator=(List &&other) noexcept {
             swap(other);
             return *this;
         }
 
         void swap(List &other) {
-            std::swap(other.mData, mData);
-            std::swap(other.mSize, mSize);
-            std::swap(other.optimized, optimized);
-            std::swap(other.head, head);
-            std::swap(other.free, free);
-        }
-
-
-        size_t capacity() const {
-            return mData.size();
+            using std::swap;
+            swap(other.mData, mData);
+            swap(other.mSize, mSize);
+            swap(other.optimized, optimized);
+            swap(other.head, head);
+            swap(other.free, free);
         }
 
         void pop_back() {
-            decSize();
-            Node *popped = static_cast<Node *>(head.prev);
-            popped->cut();
-            addToFree(popped);
+            erase(--end());
         }
 
         void pop_front() {
-            decSize();
-            Node *popped = static_cast<Node *>(head.next);
-            popped->cut();
-            addToFree(popped);
+            erase(begin());
         }
 
         template<typename... Args>
         void emplace_back(Args &&... args) {
-            Node *freeNode = getFreeNode();
-            freeNode->assign( T(std::forward<Args>(args)...));
-            FakeNode *last = head.prev;
-            linkNodes(last, freeNode);
-            linkNodes(freeNode, &head);
-            incSize();
-            if (free.next == &free) {
-                mData.emplace_back();
-                addToFree(&mData.back());
-            }
+            emplace(end(), std::forward<Args>(args)...);
         }
 
         template<typename... Args>
         void emplace_front(Args &&... args) {
-            Node *freeNode = getFreeNode();
-            freeNode->assign(T(std::forward<Args>(args)...));
-            Node *first = head.next;
-            linkNodes(freeNode, first);
-            linkNodes(head, freeNode);
-            incSize();
-            if (free.next == &free) {
-                mData.emplace_back();
-                addToFree(&mData.back());
-            }
+            emplace(begin(), std::forward<Args>(args)...);
         }
 
         void push_back(const_reference val) {
@@ -180,6 +143,14 @@ namespace mipt {
             emplace_back(std::move(val));
         }
 
+        void push_front(const_reference val) {
+            emplace_front(val);
+        }
+
+        void push_front(value_type &&val) {
+            emplace_front(std::move(val));
+        }
+
         template<typename... Args>
         void emplace(const_iterator it, Args &&... args) {
             Node *curNode = const_cast<Node *>(it.node());
@@ -188,10 +159,6 @@ namespace mipt {
             linkNodes(curNode->prev, newNode);
             linkNodes(newNode, curNode);
             incSize();
-            if (free.next == &free) {
-                mData.emplace_back();
-                addToFree(&mData.back());
-            }
         }
 
         void erase(const_iterator pos) {
@@ -205,7 +172,6 @@ namespace mipt {
             if (optimized) {
                 return iterator(&mData[index]);
             } else {
-
                 iterator result = begin();
                 std::advance(result, static_cast<long>(index));
                 return result;
@@ -276,6 +242,10 @@ namespace mipt {
         void incSize() {
             optimized = false;
             mSize++;
+            if (free.next == &free) {
+                mData.emplace_back();
+                addToFree(&mData.back());
+            }
         }
 
         void decSize() {
