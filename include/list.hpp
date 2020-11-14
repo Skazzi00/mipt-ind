@@ -39,11 +39,11 @@ namespace mipt {
                 this->prev->next = this;
             }
 
-            void assign(const T & val) {
+            void assign(const T &val) {
                 value = val;
             }
 
-            void assign(T&& val) {
+            void assign(T &&val) {
                 value = std::move(val);
             }
 
@@ -125,6 +125,25 @@ namespace mipt {
             erase(begin());
         }
 
+        iterator get(size_t index) {
+            if (optimized) {
+                return iterator(&mData[index]);
+            } else {
+                iterator result = begin();
+                for (size_t i = 0; i < index; i++, result++) {};
+                return result;
+            }
+        }
+
+        const_iterator get(size_t index) const {
+            if (optimized) {
+                return const_iterator(&mData[index]);
+            } else {
+                const_iterator result = begin();
+                for (size_t i = 0; i < index; i++, result++) {};
+                return result;
+            }
+        }
         template<typename... Args>
         void emplace_back(Args &&... args) {
             emplace(end(), std::forward<Args>(args)...);
@@ -161,6 +180,14 @@ namespace mipt {
             incSize();
         }
 
+        void insert(const_iterator it, const_reference val) {
+            emplace(it, val);
+        }
+
+        void insert(const_iterator it, value_type &&val) {
+            emplace(it, std::move(val));
+        }
+
         void erase(const_iterator pos) {
             decSize();
             Node *erased = const_cast<Node *>(pos.node());
@@ -168,25 +195,7 @@ namespace mipt {
             addToFree(erased);
         }
 
-        iterator get(size_t index) {
-            if (optimized) {
-                return iterator(&mData[index]);
-            } else {
-                iterator result = begin();
-                std::advance(result, static_cast<long>(index));
-                return result;
-            }
-        }
 
-        const_iterator get(size_t index) const {
-            if (optimized) {
-                return const_iterator(&mData[index]);
-            } else {
-                const_iterator result = begin();
-                std::advance(result, static_cast<long>(index));
-                return result;
-            }
-        }
 
         T &front() {
             return *begin();
@@ -232,10 +241,105 @@ namespace mipt {
             return const_iterator(static_cast<const Node *>(&head));
         }
 
+        iterator beginFree() {
+            return iterator(static_cast<Node *>(free.next));
+        }
+
+        const_iterator beginFree() const {
+            return const_iterator(static_cast<const Node *>(free.next));
+        }
+
+        iterator endFree() {
+            return iterator(static_cast<Node *>(&free));
+        }
+
+        const_iterator endFree() const {
+            return const_iterator(static_cast<const Node *>(&free));
+        }
+
         void optimize() {
             if (optimized) return;
             List<value_type> tmp(*this);
             swap(tmp);
+        }
+
+        friend void dump(const List &list, FILE *out) {
+            fprintf(out, "digraph list {\n"
+                         "graph [rankdir = \"LR\"];\n"
+                         "rank = same;\n"
+                         "node[shape = record];\n");
+
+            auto dumpComponent = [&list, &out](const char *prefix,
+                                               const char *nodeColor,
+                                               const char *endColor,
+                                               List<T>::const_iterator begin,
+                                               List<T>::const_iterator end) {
+                for (auto it = begin; it != end; ++it) {
+                    long index = it.node() - list.mData.begin();
+                    fprintf(out, "\"%s%ld\" [label = \"<index> %ld | <prev> prev | <next> next | <val> value = ",
+                            prefix, index,
+                            index);
+                    printToFile(out, *it);
+                    fprintf(out, "\", color=%s];\n", nodeColor);
+                }
+                fprintf(out, "\"%s%d\" [label = \"<index> END | <prev> prev | <next> next\", color=%s];\n", prefix, -1,
+                        endColor);
+
+                for (auto it = begin; it != end; ++it) {
+                    long nodeIndex = it.node() - list.mData.begin();
+                    long prevIndex =
+                            it.node()->prev == end.node()
+                            ? -1
+                            : static_cast<Node *>(it.node()->prev) - list.mData.begin();
+                    long nextIndex =
+                            it.node()->next == end.node()
+                            ? -1
+                            : static_cast<Node *>(it.node()->next) - list.mData.begin();
+
+                    fprintf(out, "\"%s%ld\":prev->\"%s%ld\":index;\n", prefix, nodeIndex, prefix, prevIndex);
+                    fprintf(out, "\"%s%ld\":next->\"%s%ld\":index;\n", prefix, nodeIndex, prefix, nextIndex);
+                }
+
+                long endPrevIndex =
+                        end.node()->prev == &list.head ? -1 : static_cast<Node *>(end.node()->prev) -
+                                                              list.mData.begin();
+                long endNextIndex =
+                        end.node()->next == &list.head ? -1 : static_cast<Node *>(end.node()->next) -
+                                                              list.mData.begin();
+
+                fprintf(out, "\"%s-1\":prev->\"%s%ld\":index;\n", prefix, prefix, endPrevIndex);
+                fprintf(out, "\"%s-1\":next->\"%s%ld\":index;\n", prefix, prefix, endNextIndex);
+
+            };
+
+            dumpComponent("node", "blue", "blueviolet", list.begin(), list.end());
+            dumpComponent("freeNode", "green", "greenyellow", list.beginFree(), list.endFree());
+
+            fprintf(out, "}\n");
+        }
+
+        friend Status validate(const List &list) {
+            Status vecCode = validate(&list.mData);
+            if (vecCode != Status::OK) {
+                return vecCode;
+            }
+
+            auto it = list.begin();
+            for (int i = 0; i < list.size() + 1; ++i, ++it) {}
+            if (it != list.begin()) return Status::INVALID;
+
+            for (int i = 0; i < list.size() + 1; ++i, --it) {}
+            if (it != list.begin()) return Status::INVALID;
+
+            auto freeIt = list.beginFree();
+            long freeSize = static_cast<long>(list.mData.size()) - static_cast<long>(list.size());
+            for (int i = 0; i < freeSize + 1; ++i, ++freeIt) {}
+            if (freeIt != list.beginFree()) return Status::INVALID;
+
+            for (int i = 0; i < freeSize + 1; ++i, --freeIt) {}
+            if (freeIt != list.beginFree()) return Status::INVALID;
+
+            return Status::OK;
         }
 
     private:

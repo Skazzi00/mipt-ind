@@ -5,7 +5,7 @@
 namespace mipt {
     template<typename T>
     inline void printToFile(FILE *file, T) {
-        fprintf(file, "<VALUE>");
+        fprintf(file, "$VALUE$");
     }
 
     template<>
@@ -22,5 +22,10 @@ namespace mipt {
     template<>
     inline void printToFile(FILE *file, double val) {
         fprintf(file, "%lg", val);
+    }
+
+    template<>
+    inline void printToFile(FILE *file, size_t val) {
+        fprintf(file, "%zu", val);
     }
 }

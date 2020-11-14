@@ -1,7 +1,6 @@
 #include "list.hpp"
 #include "gtest/gtest.h"
 #include "base_test.hpp"
-#include <unordered_set>
 
 using namespace mipt;
 
