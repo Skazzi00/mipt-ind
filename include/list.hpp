@@ -9,6 +9,7 @@
 
 namespace mipt {
 
+
     template<typename T>
     struct List {
     private:
@@ -33,6 +34,8 @@ namespace mipt {
             Node(T val) : FakeNode(), value(val) {}
 
             Node(const Node &) = delete;
+
+            Node &operator=(const Node &) = delete;
 
             Node(Node &&other) noexcept: FakeNode(other.next, other.prev), value(other.value) {
                 this->next->prev = this;
@@ -80,7 +83,7 @@ namespace mipt {
         using iterator = Iterator<T, List<T>::Node>;
         using const_iterator = Iterator<const T, const List<T>::Node>;
 
-        List() : mData(), mSize(0), free(), head(), optimized(false) {}
+        List() noexcept: mData(), mSize(0), free(), head(), optimized(false) {}
 
         List(const List &other) : mData(), mSize(0), free(), head(), optimized(true) {
             FakeNode *prev = &head;
@@ -108,7 +111,7 @@ namespace mipt {
             return *this;
         }
 
-        void swap(List &other) {
+        void swap(List &other) noexcept {
             using std::swap;
             swap(other.mData, mData);
             swap(other.mSize, mSize);
@@ -117,15 +120,15 @@ namespace mipt {
             swap(other.free, free);
         }
 
-        void pop_back() {
+        void pop_back() noexcept {
             erase(--end());
         }
 
-        void pop_front() {
+        void pop_front() noexcept {
             erase(begin());
         }
 
-        iterator get(size_t index) {
+        iterator get(size_t index) noexcept {
             if (optimized) {
                 return iterator(&mData[index]);
             } else {
@@ -135,7 +138,7 @@ namespace mipt {
             }
         }
 
-        const_iterator get(size_t index) const {
+        const_iterator get(size_t index) const noexcept {
             if (optimized) {
                 return const_iterator(&mData[index]);
             } else {
@@ -144,6 +147,7 @@ namespace mipt {
                 return result;
             }
         }
+
         template<typename... Args>
         void emplace_back(Args &&... args) {
             emplace(end(), std::forward<Args>(args)...);
@@ -188,7 +192,7 @@ namespace mipt {
             emplace(it, std::move(val));
         }
 
-        void erase(const_iterator pos) {
+        void erase(const_iterator pos) noexcept {
             decSize();
             Node *erased = const_cast<Node *>(pos.node());
             erased->cut();
@@ -196,64 +200,63 @@ namespace mipt {
         }
 
 
-
-        T &front() {
+        T &front() noexcept {
             return *begin();
         }
 
-        const T &front() const {
+        const T &front() const noexcept {
             return *begin();
         }
 
-        T &back() {
+        T &back() noexcept {
             auto res = end();
             res--;
             return *res;
         }
 
-        const T &back() const {
+        const T &back() const noexcept {
             auto res = end();
             res--;
             return *res;
         }
 
-        size_t size() const {
+        size_t size() const noexcept {
             return mSize;
         }
 
-        bool empty() const {
+        bool empty() const noexcept {
             return size() == 0;
         }
 
-        iterator begin() {
+        iterator begin() noexcept {
             return iterator(static_cast<Node *>(head.next));
         }
 
-        const_iterator begin() const {
+        const_iterator begin() const noexcept {
             return const_iterator(static_cast<const Node *>(head.next));
         }
 
-        iterator end() {
+        iterator end() noexcept {
             return iterator(static_cast<Node *>(&head));
         }
 
-        const_iterator end() const {
+        const_iterator end() const noexcept {
             return const_iterator(static_cast<const Node *>(&head));
         }
 
-        iterator beginFree() {
+        iterator beginFree() noexcept {
             return iterator(static_cast<Node *>(free.next));
         }
 
-        const_iterator beginFree() const {
+        const_iterator beginFree() const noexcept {
             return const_iterator(static_cast<const Node *>(free.next));
         }
 
-        iterator endFree() {
+        iterator endFree() noexcept {
             return iterator(static_cast<Node *>(&free));
         }
 
-        const_iterator endFree() const {
+        const_iterator endFree() const noexcept {
             return const_iterator(static_cast<const Node *>(&free));
         }
 
