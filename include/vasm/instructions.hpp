@@ -3,7 +3,7 @@
 #include <cstring>
 #include <string>
 
-#include "vasm/errors.hpp"
+#include "errors.hpp"
 
 namespace mipt::vasm {
     const std::size_t MAX_CMD_LEN = 32;

@@ -5,7 +5,7 @@
 
 #include "vasm/instructions.hpp"
 #include "vasm/registers.hpp"
-#include "vasm/errors.hpp"
+#include "errors.hpp"
 #include "stack.hpp"
 #include "string_view.hpp"
 #include "vasm/bytecode.hpp"

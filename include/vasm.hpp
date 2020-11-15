@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vasm/errors.hpp"
+#include "errors.hpp"
 #include "vasm/bytecode.hpp"
 #include "vasm/instructions.hpp"
 #include "vasm/processor.hpp"

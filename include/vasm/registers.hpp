@@ -4,7 +4,7 @@
 #include <cstring>
 #include <string>
 
-#include "vasm/errors.hpp"
+#include "errors.hpp"
 
 namespace mipt::vasm {
     enum class Register : unsigned char {

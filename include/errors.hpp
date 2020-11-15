@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-namespace mipt::vasm {
+namespace mipt {
     struct parse_error : std::logic_error {
         using std::logic_error::logic_error;
     };
