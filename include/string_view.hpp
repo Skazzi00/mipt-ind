@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstring>
+#include <string>
 
 namespace mipt {
     struct string_view {
@@ -9,6 +10,7 @@ namespace mipt {
 
         string_view(const char * data, size_t len) : mData(data), mLength(len) {}
         string_view(const char * data) : mData(data), mLength(data ? strlen(data) : 0) {}
+        string_view(const std::string & data) : mData(data.c_str()), mLength(data.length()) {}
 
         [[nodiscard]] size_t length() const {
             return mLength;
@@ -25,6 +27,8 @@ namespace mipt {
         operator const char *() {
             return mData;
         }
+
+
 
         const_iterator begin() const {
             return mData;

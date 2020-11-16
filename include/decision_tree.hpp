@@ -16,6 +16,16 @@ namespace mipt {
             Node *right;
             std::string data;
 
+            Node() : left(nullptr), right(nullptr), data() {}
+
+            Node(const Node &) = delete;
+
+            Node &operator=(const Node &) = delete;
+
+            Node(Node &&other) = delete;
+
+            Node &operator=(Node &&) = delete;
+
             ~Node() {
                 if (left) delete left;
                 if (right) delete right;
@@ -29,14 +39,19 @@ namespace mipt {
             auto skipWhitespace = [&end](InputIterator &it) {
                 while (it != end && isspace(*it)) it++;
             };
+
             auto throwFoundChar = [](char expected, char found) {
                 std::string errorMessage;
                 errorMessage.reserve(128);
-                errorMessage.append("Error occurred while parsing: Expected '");
-                errorMessage.push_back(expected);
-                errorMessage.append("', but found '");
-                errorMessage.push_back(found);
-                errorMessage.push_back('\'');
+                sprintf(errorMessage.data(), "Error occurred while parsing: Expected '%c', but found '%c'", expected,
+                        found);
+                throw parse_error(std::move(errorMessage));
+            };
+
+            auto throwNotFound = [](char expected) {
+                std::string errorMessage;
+                errorMessage.reserve(128);
+                sprintf(errorMessage.data(), "Error occurred while parsing: Expected '%c', but not found", expected);
                 throw parse_error(std::move(errorMessage));
             };
 
@@ -44,22 +59,22 @@ namespace mipt {
             skipWhitespace(firstChar);
 
             if (firstChar == end) {
-                throw parse_error("Error occurred while parsing: Expected '\"', but not found");
+                throwNotFound('"');
             }
-
             if (*firstChar != '"') {
                 throwFoundChar('"', *firstChar);
             }
 
             auto endOfName = std::find(firstChar + 1, end, '"');
             if (endOfName == end) {
-                throw parse_error("Error occurred while parsing: Expected '\"', but not found");
+                throwNotFound('"');
             }
 
             node->data = std::string(firstChar + 1, static_cast<size_t>(endOfName - (firstChar + 1)));
 
             auto it = endOfName + 1;
             skipWhitespace(it);
+
             if (it == end) {
                 return it;
             }
@@ -69,7 +84,8 @@ namespace mipt {
                 it = parseExpression(it + 1, end, node->left);
                 it = parseExpression(it, end, node->right);
                 skipWhitespace(it);
-                if (it == end) return it;
+
+                if (it == end) throwNotFound(']');
                 if (*it == ']') {
                     return it + 1;
                 }
@@ -89,18 +105,50 @@ namespace mipt {
             }
         }
 
-    public:
-        DecisionTree(string_view data) {
-            parseExpression(data.begin(), data.end(), &root);
+        struct Fact {
+            string_view data;
+            bool isTrue;
+
+            Fact(const string_view &data, bool isTrue) : data(data), isTrue(isTrue) {}
+        };
+
+        bool findFacts(string_view name, Node *node, Vector<Fact> &facts) {
+            if (node->left == nullptr && node->right == nullptr) {
+                if (strcmp(name, node->data.c_str()) == 0) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            bool leftChild = findFacts(name, node->left, facts);
+            bool rightChild = findFacts(name, node->right, facts);
+            if (leftChild) {
+                facts.emplace_back(node->data.c_str(), true);
+            }
+            if (rightChild) {
+                facts.emplace_back(node->data.c_str(), false);
+            }
+
+            return leftChild || rightChild;
         }
 
-        void serialize(FILE *fp) {
-            serializeNode(fp, &root);
+        void addName(Node *curNode) const {
+            char name[128];
+            char diff[128];
+            printf("Enter name of what you guessed:\n");
+            scanf("%127s", name);
+            printf("Enter fact which true for %s and false for %s?\n", name, curNode->data.c_str());
+            scanf("%127s", diff);
+            curNode->left = new Node();
+            curNode->right = new Node();
+            curNode->right->data = std::move(curNode->data);
+            curNode->left->data = name;
+            curNode->data = diff;
         }
 
-        void guess() {
+        Node *findUserNode()  {
             Node *curNode = &root;
-            printf("Let's guess...\n");
             while (true) {
                 if (curNode->left == nullptr || curNode->right == nullptr) {
                     break;
@@ -114,30 +162,70 @@ namespace mipt {
                     curNode = curNode->right;
                 }
             }
+            return curNode;
+        }
+
+    public:
+        DecisionTree(string_view data) : root() {
+            parseExpression(data.begin(), data.end(), &root);
+        }
+
+        ~DecisionTree() = default;
+
+        DecisionTree(const DecisionTree &) = delete;
+
+        DecisionTree &operator=(const DecisionTree &) = delete;
+
+        DecisionTree(DecisionTree &&other) = delete;
+
+        DecisionTree &operator=(DecisionTree &&other) = delete;
+
+        void serialize(FILE *fp) {
+            serializeNode(fp, &root);
+        }
+
+        void guess() {
+            printf("Let's guess...\n");
+            Node *curNode = findUserNode();
+
             printf("Is it %s?\n", curNode->data.c_str());
+
             char ans[20] = "yes";
             scanf(" %19s", ans);
-
             if (ans[0] == 'y') {
                 printf("EZ\n");
             } else if (ans[0] == 'n') {
-                char name[128];
-                char diff[128];
-                printf("Enter name of what you guessed:\n");
-                scanf("%127s", name);
-                printf("What difference beetween %s and %s?\n", curNode->data.c_str(), name);
-                scanf("%127s", diff);
-                curNode->left = new Node();
-                curNode->right = new Node();
-                curNode->right->data = std::move(curNode->data);
-                curNode->left->data = name;
-                curNode->data = diff;
+                addName(curNode);
             }
 
             printf("Repeat?\n");
             scanf(" %19s", ans);
             if (ans[0] == 'y') {
                 guess();
+            }
+        }
+
+        void getDefenition(const char *name) {
+            Vector<Fact> facts;
+            findFacts(name, &root, facts);
+            if (facts.empty()) {
+                printf("I know nothing about %s (", name);
+                return;
+            }
+
+            printf("%s ", name);
+            for (size_t i = 0; i + 1 < facts.size(); i++) {
+                if (facts[i].isTrue) {
+                    printf("%s, ", facts[i].data.data());
+                } else {
+                    printf("not %s, ", facts[i].data.data());
+                }
+            }
+
+            if (facts.back().isTrue) {
+                printf("%s.", facts.back().data.data());
+            } else {
+                printf("not %s.", facts.back().data.data());
             }
         }
     };

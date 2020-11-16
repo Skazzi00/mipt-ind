@@ -31,6 +31,8 @@ namespace mipt {
 
             Node() : FakeNode(), value() {}
 
+            ~Node() = default;
+
             Node(T val) : FakeNode(), value(val) {}
 
             Node(const Node &) = delete;
@@ -42,6 +44,11 @@ namespace mipt {
                 this->prev->next = this;
             }
 
+            Node &operator=(Node &&other) {
+                swap(other);
+                return *this;
+            }
+
             void assign(const T &val) {
                 value = val;
             }
@@ -50,10 +57,6 @@ namespace mipt {
                 value = std::move(val);
             }
 
-            Node &operator=(Node &&other) {
-                swap(other);
-                return *this;
-            }
 
             void swap(Node &other) {
                 using std::swap;
