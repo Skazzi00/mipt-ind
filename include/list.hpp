@@ -131,7 +131,7 @@ namespace mipt {
             erase(begin());
         }
 
-        iterator get(size_t index) noexcept {
+        iterator getFastIfOptimizedElseLinear(size_t index) noexcept {
             if (optimized) {
                 return iterator(&mData[index]);
             } else {
@@ -141,7 +141,7 @@ namespace mipt {
             }
         }
 
-        const_iterator get(size_t index) const noexcept {
+        const_iterator getFastIfOptimizedElseLinear(size_t index) const noexcept {
             if (optimized) {
                 return const_iterator(&mData[index]);
             } else {

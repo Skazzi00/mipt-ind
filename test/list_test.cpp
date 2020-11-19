@@ -13,7 +13,7 @@ TEST(ListCorrectness, push_back) {
             a.push_back(i);
 
         for (size_t i = 0; i != N; ++i)
-            EXPECT_EQ(i, *a.get(i));
+            EXPECT_EQ(i, *a.getFastIfOptimizedElseLinear(i));
     }
 
     element<size_t>::expect_no_instances();
@@ -27,7 +27,7 @@ TEST(ListCorrectness, push_front) {
             a.push_front(i);
 
         for (size_t i = 0; i != N; ++i)
-            EXPECT_EQ(N - 1 - i, *a.get(i));
+            EXPECT_EQ(N - 1 - i, *a.getFastIfOptimizedElseLinear(i));
     }
 
     element<size_t>::expect_no_instances();
@@ -39,9 +39,9 @@ TEST(ListCorrectness, push_back_from_self) {
         List<element<size_t> > a;
         a.push_back(42);
         for (size_t i = 0; i != N; ++i)
-            a.push_back(*a.get(0));
+            a.push_back(*a.getFastIfOptimizedElseLinear(0));
 
-        for (size_t i = 0; i != a.size(); ++i) EXPECT_EQ(42, *a.get(i));
+        for (size_t i = 0; i != a.size(); ++i) EXPECT_EQ(42, *a.getFastIfOptimizedElseLinear(i));
     }
 
     element<size_t>::expect_no_instances();
@@ -52,11 +52,11 @@ TEST(ListCorrectness, subscription) {
     List<size_t> a;
     for (size_t i = 0; i != N; ++i) a.push_back(2 * i + 1);
 
-    for (size_t i = 0; i != N; ++i) EXPECT_EQ(2 * i + 1, *a.get(i));
+    for (size_t i = 0; i != N; ++i) EXPECT_EQ(2 * i + 1, *a.getFastIfOptimizedElseLinear(i));
 
     List<size_t> const &ca = a;
 
-    for (size_t i = 0; i != N; ++i) EXPECT_EQ(2 * i + 1, *ca.get(i));
+    for (size_t i = 0; i != N; ++i) EXPECT_EQ(2 * i + 1, *ca.getFastIfOptimizedElseLinear(i));
 
 }
 
@@ -81,7 +81,7 @@ TEST(ListCorrectness, copy_ctor) {
         for (size_t i = 0; i != N; ++i) a.push_back(i);
 
         List<element<size_t> > b = a;
-        for (size_t i = 0; i != N; ++i) EXPECT_EQ(i, *b.get(i));
+        for (size_t i = 0; i != N; ++i) EXPECT_EQ(i, *b.getFastIfOptimizedElseLinear(i));
     }
     element<size_t>::expect_no_instances();
 }
@@ -98,7 +98,7 @@ TEST(ListCorrectness, assignment_operator) {
         b = a;
         EXPECT_EQ(N, b.size());
         for (size_t i = 0; i != N; ++i) {
-            auto tmp = *b.get(i);
+            auto tmp = *b.getFastIfOptimizedElseLinear(i);
             EXPECT_EQ(2 * i + 1, tmp);
         }
     }
@@ -115,7 +115,7 @@ TEST(ListCorrectness, self_assignment) {
         a = a;
 #pragma clang diagnostic pop
 
-        for (size_t i = 0; i != N; ++i) EXPECT_EQ(2 * i + 1, *a.get(i));
+        for (size_t i = 0; i != N; ++i) EXPECT_EQ(2 * i + 1, *a.getFastIfOptimizedElseLinear(i));
     }
     element<size_t>::expect_no_instances();
 }
@@ -166,7 +166,7 @@ TEST(ListCorrectness, emplace_end) {
             EXPECT_EQ(4 * i + 1, a.back());
         }
 
-        for (size_t i = 0; i != N; ++i) EXPECT_EQ(2 * i + 1, *a.get(i));
+        for (size_t i = 0; i != N; ++i) EXPECT_EQ(2 * i + 1, *a.getFastIfOptimizedElseLinear(i));
     }
     element<size_t>::expect_no_instances();
 }
@@ -185,7 +185,7 @@ TEST(ListCorrectness, erase) {
             size_t cnt = 0;
             for (size_t j = 0; j != N - 1; ++j) {
                 if (j == i) ++cnt;
-                EXPECT_EQ(2 * cnt + 1, *a.get(j));
+                EXPECT_EQ(2 * cnt + 1, *a.getFastIfOptimizedElseLinear(j));
                 ++cnt;
             }
         }
@@ -202,7 +202,7 @@ TEST(ListCorrectness, erase_begin) {
 
         for (size_t i = 0; i != N; ++i) a.erase(a.begin());
 
-        for (size_t i = 0; i != N; ++i) EXPECT_EQ(2 * (i + N) + 1, *a.get(i));
+        for (size_t i = 0; i != N; ++i) EXPECT_EQ(2 * (i + N) + 1, *a.getFastIfOptimizedElseLinear(i));
     }
     element<size_t>::expect_no_instances();
 }
@@ -217,7 +217,7 @@ TEST(ListCorrectness, erase_end) {
 
         for (size_t i = 0; i != N; ++i) a.erase(--a.end());
 
-        for (size_t i = 0; i != N; ++i) EXPECT_EQ(2 * i + 1, *a.get(i));
+        for (size_t i = 0; i != N; ++i) EXPECT_EQ(2 * i + 1, *a.getFastIfOptimizedElseLinear(i));
     }
     element<size_t>::expect_no_instances();
 }
@@ -235,7 +235,7 @@ TEST(ListCorrectness, optimize) {
         a.optimize();
 
         for (size_t i = N / 2; i != N; ++i)
-            EXPECT_EQ(i, *a.get(i - N / 2));
+            EXPECT_EQ(i, *a.getFastIfOptimizedElseLinear(i - N / 2));
     }
 
     element<size_t>::expect_no_instances();
