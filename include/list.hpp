@@ -103,6 +103,14 @@ struct List {
     erase(prev(end()));
   }
 
+  size_t slowLinearSearch(size_t logicIndex) {
+    size_t phAddress = begin();
+    for (size_t i = 0; i < logicIndex; i++) {
+      phAddress = next(phAddress);
+    }
+    return phAddress;
+  }
+
   void optimize() {
     if (optimized) return;
     Vector<Node> newNodes = Vector<Node>::ctor(size_);
