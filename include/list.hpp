@@ -104,9 +104,9 @@ struct List {
   }
 
   /**
-   * If returned 0, then index incorrect
+   * If returned 0, then logic index incorrect
    */
-  size_t slowLinearSearch(size_t logicIndex) {
+  size_t slowLinearSearchFromLogicalToPhysicalIndex(size_t logicIndex) {
     if (logicIndex >= size()) {
       return 0;
     }
@@ -179,6 +179,7 @@ struct List {
                 "graph [rankdir = \"LR\"];\n"
                 "rank = same;\n"
                 "node[shape = record];\n");
+    fprintf(fp, "\"meta\" [label = \"capacity = %zu | size = %zu | free = %zu\" ];\n", nodes.size(), size_, free);
     fprintf(fp, "\"node0\" [label = \"<index> HEAD | <prev> prev | <next> next\" fillcolor=blue style=filled];\n");
     if (linear && 1 != nodes.size()) {
       fprintf(fp, "\"node%d\"->\"node%d\"[style=invis weight=10000];\n", 0, 1);
