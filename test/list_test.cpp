@@ -17,10 +17,10 @@ TEST(ListCorrectness, insert_begin) {
       a.erase(a.prev(a.end()));
     }
 
-    FILE * fp = fopen("listdp.gv", "w");
+    FILE *fp = fopen("listdp.gv", "w");
     a.dump(fp, true);
     fclose(fp);
-
+    a.dtor();
   }
   element<size_t>::expect_no_instances();
 }
@@ -41,6 +41,8 @@ TEST(ListCorrectness, insert_end) {
 
     a.optimize();
     for (size_t i = 0; i != N; ++i) EXPECT_EQ(2 * i + 1, a.getByIndex(i + 1));
+    a.dtor();
+
   }
   element<size_t>::expect_no_instances();
 }
@@ -56,6 +58,8 @@ TEST(ListCorrectness, erase_end) {
 
     a.optimize();
     for (size_t i = 0; i != N; ++i) EXPECT_EQ(2 * i + 1, a.getByIndex(i + 1));
+    a.dtor();
+
   }
   element<size_t>::expect_no_instances();
 }
@@ -71,6 +75,8 @@ TEST(ListCorrectness, erase_begin) {
 
     a.optimize();
     for (size_t i = 0; i != N; ++i) EXPECT_EQ(2 * (i + N) + 1, a.getByIndex(i + 1));
+    a.dtor();
+
   }
   element<size_t>::expect_no_instances();
 }
@@ -92,6 +98,8 @@ TEST(ListCorrectness, erase) {
         EXPECT_EQ(2 * cnt + 1, a.getByIndex(j + 1));
         ++cnt;
       }
+      a.dtor();
+
     }
   }
   element<size_t>::expect_no_instances();
@@ -110,6 +118,7 @@ TEST(ListCorrectness, pop_back) {
       a.pop_back();
     }
     EXPECT_TRUE(a.empty());
+    a.dtor();
   }
   element<size_t>::expect_no_instances();
 }
@@ -122,6 +131,8 @@ TEST(ListCorrectness, front_back) {
   EXPECT_EQ(1, a.front());
 
   EXPECT_EQ(999, a.back());
+  a.dtor();
+
 }
 
 TEST(ListCorrectness, push_back) {
@@ -135,6 +146,8 @@ TEST(ListCorrectness, push_back) {
 
     for (size_t i = 0; i != N; ++i)
       EXPECT_EQ(i, a.getByIndex(i + 1));
+    a.dtor();
+
   }
 
   element<size_t>::expect_no_instances();
@@ -150,6 +163,8 @@ TEST(ListCorrectness, push_front) {
     a.optimize();
     for (size_t i = 0; i != N; ++i)
       EXPECT_EQ(N - 1 - i, a.getByIndex(i + 1));
+    a.dtor();
+
   }
 
   element<size_t>::expect_no_instances();
@@ -169,6 +184,8 @@ TEST(ListCorrectness, optimize) {
 
     for (size_t i = N / 2; i != N; ++i)
       EXPECT_EQ(i, a.getByIndex(i - N / 2 + 1));
+    a.dtor();
+
   }
 
   element<size_t>::expect_no_instances();

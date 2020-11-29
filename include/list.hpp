@@ -226,6 +226,10 @@ struct List {
     return size() == 0;
   }
 
+  void dtor() {
+    nodes.dtor();
+  }
+
  private:
   Vector<Node> nodes;
   size_t size_;
