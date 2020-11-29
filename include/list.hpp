@@ -103,7 +103,13 @@ struct List {
     erase(prev(end()));
   }
 
+  /**
+   * If returned 0, then index incorrect
+   */
   size_t slowLinearSearch(size_t logicIndex) {
+    if (logicIndex >= size()) {
+      return 0;
+    }
     size_t phAddress = begin();
     for (size_t i = 0; i < logicIndex; i++) {
       phAddress = next(phAddress);
@@ -173,13 +179,18 @@ struct List {
                 "graph [rankdir = \"LR\"];\n"
                 "rank = same;\n"
                 "node[shape = record];\n");
-    for (size_t index = 0; index < nodes.size(); ++index) {
+    fprintf(fp, "\"node0\" [label = \"<index> HEAD | <prev> prev | <next> next\" fillcolor=blue style=filled];\n");
+    if (linear && 1 != nodes.size()) {
+      fprintf(fp, "\"node%d\"->\"node%d\"[style=invis weight=10000];\n", 0, 1);
+    }
+    for (size_t index = 1; index < nodes.size(); ++index) {
       fprintf(fp, "\"node%ld\" [label = \"<index> %ld | <prev> prev | <next> next | <val> value = ",
               index,
               index);
       printToFile(fp, nodes[index].value);
+      fprintf(fp, "\"");
+      fprintf(fp, " %s];\n", nodes[index].deleted ? "fillcolor=green style=filled" : "");
 
-      fprintf(fp, "\" %s];\n", nodes[index].deleted ? "fillcolor=green style=filled" : "");
       if (linear && index != nodes.size() - 1) {
         fprintf(fp, "\"node%ld\"->\"node%ld\"[style=invis weight=10000];\n", index, index + 1);
       }
