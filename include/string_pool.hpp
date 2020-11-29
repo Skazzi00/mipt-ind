@@ -123,8 +123,8 @@ class Allocator {
   };
 
   enum {
-    minBlockSize = 600'000,
-    maxStringLength = 1024 * 1024
+    BlockSize       = 512 * 1024, // todo сделать размер больших строк кратным BlockSize
+    MaxStringLength = BlockSize * 2
   };
 
   Vector<Header *> mBlocks{};
@@ -142,7 +142,7 @@ class Allocator {
 
   // return nullptr if length to big
   char *allocMem(size_t length) {
-    if (length > maxStringLength) {
+    if (length > MaxStringLength) {
       return nullptr;
     }
 
@@ -152,20 +152,20 @@ class Allocator {
       return res;
     }
 
-    size_t blockSize = length + sizeof(Header);
-    if (blockSize < minBlockSize) {
-      blockSize = minBlockSize;
+    size_t allocatedBlockSize = length + sizeof(Header);
+    if (allocatedBlockSize < BlockSize) {
+      allocatedBlockSize = BlockSize;
     }
 
-    char *pBlockStart = static_cast<char *>(Alloc(blockSize));
+    char *pBlockStart = static_cast<char *>(Alloc(allocatedBlockSize));
     if (pBlockStart == nullptr) {
       return nullptr;
     }
 
-    mpEnd = pBlockStart + blockSize;
+    mpEnd = pBlockStart + allocatedBlockSize;
 
     Header *pHeader = reinterpret_cast<Header *>(pBlockStart);
-    pHeader->size = blockSize;
+    pHeader->size = allocatedBlockSize;
 
     mpNext = reinterpret_cast<char *>(pHeader + 1);
 

@@ -152,6 +152,7 @@ class DecisionTree {
       return strcmp(name, node->data.c_str()) == 0;
     }
 
+//    facts.push_back(Fact::ctor(node->data.c_str(), false));
     bool leftChild = findFacts(name, node->left, facts);
     bool rightChild = findFacts(name, node->right, facts);
     if (leftChild) {
@@ -164,12 +165,15 @@ class DecisionTree {
     return leftChild || rightChild;
   }
 
+
+
   void addName(Node *curNode) const {
     char name[128] = "";
-    char diff[128] = "";
-    input(name, 127, "Enter name of what you guessed:\n");
+    char diff[sizeof(name)] = "";
 
-    input(diff, 127, "Enter fact which true for %s and false for %s?\n", name, curNode->data.c_str());
+    input(name, sizeof(name) - 1, "Enter name of what you guessed:\n");
+
+    input(diff, sizeof(diff) - 1, "Enter fact which true for %s and false for %s?\n", name, curNode->data.c_str());
 
     curNode->left = Node::New();
     curNode->right = Node::New();
@@ -181,8 +185,8 @@ class DecisionTree {
   Node *findUserNode() {
     Node *curNode = &root;
     while (curNode->left != nullptr && curNode->right != nullptr) {
-      char ans[20] = "yes";
-      input(ans, 19, "%s? [y/n]\n", curNode->data.c_str());
+      char ans[20] = "yes"; // todo вынести размер в константу везде
+      input(ans, sizeof(ans) - 1, "%s? [y/n]\n", curNode->data.c_str());
       if (ans[0] == 'y') {
         curNode = curNode->left;
       } else if (ans[0] == 'n') {
