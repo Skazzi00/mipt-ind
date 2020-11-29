@@ -67,3 +67,5 @@ target_link_libraries(Vdisassembler miptLib)
 
 add_executable(playground src/playground.cpp)
 
+target_link_libraries(playground miptLib)
+

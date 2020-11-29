@@ -40,11 +40,23 @@ namespace mipt {
 
         Vector() noexcept: mSize(0), mCapacity(0), mData(nullptr) {} // O(1)
 
+        static Vector ctor() {
+          Vector res;
+          return res;
+        }
+
+        void dtor() {}
+
         Vector(size_t size) : Vector() {
             reserve(size);
             for (size_t i = 0; i < size; ++i) {
                  push_back(T());
             }
+        }
+
+        static Vector ctor(size_t size) {
+          Vector res(size);
+          return res;
         }
 
 

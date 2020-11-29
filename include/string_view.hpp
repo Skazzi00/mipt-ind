@@ -8,6 +8,7 @@ namespace mipt {
         using iterator = char *;
         using const_iterator = const char *;
 
+        string_view() : mData(nullptr), mLength(0) {}
         string_view(const char * data, size_t len) : mData(data), mLength(len) {}
         string_view(const char * data) : mData(data), mLength(data ? strlen(data) : 0) {}
         string_view(const std::string & data) : mData(data.c_str()), mLength(data.length()) {}

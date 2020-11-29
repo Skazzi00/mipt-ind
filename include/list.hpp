@@ -6,445 +6,230 @@
 
 #include "vector.hpp"
 
-
 namespace mipt {
 
-
-    template<typename T>
-    struct List {
-    private:
-        template<typename ItT, typename NodeType>
-        struct Iterator;
-    public:
-
-        struct FakeNode {
-            FakeNode *next;
-            FakeNode *prev;
-
-            FakeNode() : next(this), prev(this) {}
-
-            FakeNode(FakeNode *next, FakeNode *prev) : next(next), prev(prev) {}
-        };
-
-        struct Node : FakeNode {
-            T value;
-
-            Node() : FakeNode(), value() {}
-
-            ~Node() = default;
-
-            Node(T val) : FakeNode(), value(val) {}
-
-            Node(const Node &) = delete;
-
-            Node &operator=(const Node &) = delete;
-
-            Node(Node &&other) noexcept: FakeNode(other.next, other.prev), value(other.value) {
-                this->next->prev = this;
-                this->prev->next = this;
-            }
-
-            Node &operator=(Node &&other) {
-                swap(other);
-                return *this;
-            }
-
-            void assign(const T &val) {
-                value = val;
-            }
-
-            void assign(T &&val) {
-                value = std::move(val);
-            }
-
-
-            void swap(Node &other) {
-                using std::swap;
-                swap(other.value, value);
-                swap(other.next, this->next);
-                swap(other.prev, this->prev);
-            }
-
-            void cut() {
-                value = T();
-                this->next->prev = this->prev;
-                this->prev->next = this->next;
-            }
-
-            operator typename List<const T>::Node() const {
-                return typename List<const T>::Node(*this);
-            }
-        };
-
-        using value_type = T;
-        using size_type = size_t;
-        using difference_type = ptrdiff_t;
-        using reference = value_type &;
-        using const_reference = const value_type &;
-        using pointer = value_type *;
-        using const_pointer = const value_type *;
-        using iterator = Iterator<T, List<T>::Node>;
-        using const_iterator = Iterator<const T, const List<T>::Node>;
-
-        List() noexcept: mData(), mSize(0), free(), head(), optimized(false) {}
-
-        List(const List &other) : mData(), mSize(0), free(), head(), optimized(true) {
-            FakeNode *prev = &head;
-            for (const auto &item : other) {
-                mData.push_back(item);
-                linkNodes(prev, &mData.back());
-                prev = &mData.back();
-                mSize++;
-            }
-            linkNodes(prev, &head);
-        }
-
-        List &operator=(const List &other) noexcept {
-            List tmp(other);
-            swap(tmp);
-            return *this;
-        }
-
-        List(List &&other) noexcept: List() {
-            swap(other);
-        }
-
-        List &operator=(List &&other) noexcept {
-            swap(other);
-            return *this;
-        }
-
-        void swap(List &other) noexcept {
-            using std::swap;
-            swap(other.mData, mData);
-            swap(other.mSize, mSize);
-            swap(other.optimized, optimized);
-            swap(other.head, head);
-            swap(other.free, free);
-        }
-
-        void pop_back() noexcept {
-            erase(--end());
-        }
-
-        void pop_front() noexcept {
-            erase(begin());
-        }
-
-        iterator getFastIfOptimizedElseLinear(size_t index) noexcept {
-            if (optimized) {
-                return iterator(&mData[index]);
-            } else {
-                iterator result = begin();
-                for (size_t i = 0; i < index; i++, result++) {};
-                return result;
-            }
-        }
-
-        const_iterator getFastIfOptimizedElseLinear(size_t index) const noexcept {
-            if (optimized) {
-                return const_iterator(&mData[index]);
-            } else {
-                const_iterator result = begin();
-                for (size_t i = 0; i < index; i++, result++) {};
-                return result;
-            }
-        }
-
-        template<typename... Args>
-        void emplace_back(Args &&... args) {
-            emplace(end(), std::forward<Args>(args)...);
-        }
-
-        template<typename... Args>
-        void emplace_front(Args &&... args) {
-            emplace(begin(), std::forward<Args>(args)...);
-        }
-
-        void push_back(const_reference val) {
-            emplace_back(val);
-        }
-
-        void push_back(value_type &&val) {
-            emplace_back(std::move(val));
-        }
-
-        void push_front(const_reference val) {
-            emplace_front(val);
-        }
-
-        void push_front(value_type &&val) {
-            emplace_front(std::move(val));
-        }
-
-        template<typename... Args>
-        void emplace(const_iterator it, Args &&... args) {
-            Node *curNode = const_cast<Node *>(it.node());
-            Node *newNode = getFreeNode();
-            newNode->assign(T(std::forward<Args>(args)...));
-            linkNodes(curNode->prev, newNode);
-            linkNodes(newNode, curNode);
-            incSize();
-        }
-
-        void insert(const_iterator it, const_reference val) {
-            emplace(it, val);
-        }
-
-        void insert(const_iterator it, value_type &&val) {
-            emplace(it, std::move(val));
-        }
-
-        void erase(const_iterator pos) noexcept {
-            decSize();
-            Node *erased = const_cast<Node *>(pos.node());
-            erased->cut();
-            addToFree(erased);
-        }
-
-
-        T &front() noexcept {
-            return *begin();
-        }
-
-        const T &front() const noexcept {
-            return *begin();
-        }
-
-        T &back() noexcept {
-            auto res = end();
-            res--;
-            return *res;
-        }
-
-        const T &back() const noexcept {
-            auto res = end();
-            res--;
-            return *res;
-        }
-
-        size_t size() const noexcept {
-            return mSize;
-        }
-
-        bool empty() const noexcept {
-            return size() == 0;
-        }
-
-        iterator begin() noexcept {
-            return iterator(static_cast<Node *>(head.next));
-        }
-
-        const_iterator begin() const noexcept {
-            return const_iterator(static_cast<const Node *>(head.next));
-        }
-
-        iterator end() noexcept {
-            return iterator(static_cast<Node *>(&head));
-        }
-
-        const_iterator end() const noexcept {
-            return const_iterator(static_cast<const Node *>(&head));
-        }
-
-        iterator beginFree() noexcept {
-            return iterator(static_cast<Node *>(free.next));
-        }
-
-        const_iterator beginFree() const noexcept {
-            return const_iterator(static_cast<const Node *>(free.next));
-        }
-
-        iterator endFree() noexcept {
-            return iterator(static_cast<Node *>(&free));
-        }
-
-        const_iterator endFree() const noexcept {
-            return const_iterator(static_cast<const Node *>(&free));
-        }
-
-        void optimize() {
-            if (optimized) return;
-            List<value_type> tmp(*this);
-            swap(tmp);
-        }
-
-        friend void dump(const List &list, FILE *out) {
-            fprintf(out, "digraph list {\n"
-                         "graph [rankdir = \"LR\"];\n"
-                         "rank = same;\n"
-                         "node[shape = record];\n");
-
-            auto dumpComponent = [&list, &out](const char *prefix,
-                                               const char *nodeColor,
-                                               const char *endColor,
-                                               List<T>::const_iterator begin,
-                                               List<T>::const_iterator end) {
-                for (auto it = begin; it != end; ++it) {
-                    long index = it.node() - list.mData.begin();
-                    fprintf(out, "\"%s%ld\" [label = \"<index> %ld | <prev> prev | <next> next | <val> value = ",
-                            prefix, index,
-                            index);
-                    printToFile(out, *it);
-                    fprintf(out, "\", color=%s];\n", nodeColor);
-                }
-                fprintf(out, "\"%s%d\" [label = \"<index> END | <prev> prev | <next> next\", color=%s];\n", prefix, -1,
-                        endColor);
-
-                for (auto it = begin; it != end; ++it) {
-                    long nodeIndex = it.node() - list.mData.begin();
-                    long prevIndex =
-                            it.node()->prev == end.node()
-                            ? -1
-                            : static_cast<Node *>(it.node()->prev) - list.mData.begin();
-                    long nextIndex =
-                            it.node()->next == end.node()
-                            ? -1
-                            : static_cast<Node *>(it.node()->next) - list.mData.begin();
-
-                    fprintf(out, "\"%s%ld\":prev->\"%s%ld\":index;\n", prefix, nodeIndex, prefix, prevIndex);
-                    fprintf(out, "\"%s%ld\":next->\"%s%ld\":index;\n", prefix, nodeIndex, prefix, nextIndex);
-                }
-
-                long endPrevIndex =
-                        end.node()->prev == &list.head ? -1 : static_cast<Node *>(end.node()->prev) -
-                                                              list.mData.begin();
-                long endNextIndex =
-                        end.node()->next == &list.head ? -1 : static_cast<Node *>(end.node()->next) -
-                                                              list.mData.begin();
-
-                fprintf(out, "\"%s-1\":prev->\"%s%ld\":index;\n", prefix, prefix, endPrevIndex);
-                fprintf(out, "\"%s-1\":next->\"%s%ld\":index;\n", prefix, prefix, endNextIndex);
-
-            };
-
-            dumpComponent("node", "blue", "blueviolet", list.begin(), list.end());
-            dumpComponent("freeNode", "green", "greenyellow", list.beginFree(), list.endFree());
-
-            fprintf(out, "}\n");
-        }
-
-        friend Status validate(const List &list) {
-            Status vecCode = validate(&list.mData);
-            if (vecCode != Status::OK) {
-                return vecCode;
-            }
-
-            auto it = list.begin();
-            for (int i = 0; i < list.size() + 1; ++i, ++it) {}
-            if (it != list.begin()) return Status::INVALID;
-
-            for (int i = 0; i < list.size() + 1; ++i, --it) {}
-            if (it != list.begin()) return Status::INVALID;
-
-            auto freeIt = list.beginFree();
-            long freeSize = static_cast<long>(list.mData.size()) - static_cast<long>(list.size());
-            for (int i = 0; i < freeSize + 1; ++i, ++freeIt) {}
-            if (freeIt != list.beginFree()) return Status::INVALID;
-
-            for (int i = 0; i < freeSize + 1; ++i, --freeIt) {}
-            if (freeIt != list.beginFree()) return Status::INVALID;
-
-            return Status::OK;
-        }
-
-    private:
-        void incSize() {
-            optimized = false;
-            mSize++;
-            if (free.next == &free) {
-                mData.emplace_back();
-                addToFree(&mData.back());
-            }
-        }
-
-        void decSize() {
-            optimized = false;
-            mSize--;
-        }
-
-        template<typename ItT, typename NodeType>
-        struct Iterator {
-            NodeType *cur;
-            using iterator_category = std::bidirectional_iterator_tag;
-            using value_type = ItT;
-            using difference_type = std::ptrdiff_t;
-            using pointer = ItT *;
-            using reference = ItT &;
-
-            Iterator(NodeType *cur) : cur(cur) {}
-
-            ItT &operator*() const {
-                return cur->value;
-            }
-
-            NodeType *node() const {
-                return cur;
-            }
-
-            ItT *operator->() const {
-                return &cur->value;
-            }
-
-            Iterator &operator++() {
-                cur = static_cast<NodeType *> (cur->next);
-                return *this;
-            }
-
-            Iterator operator++(int) {
-                Iterator tmp = *this;
-                ++(*this);
-                return tmp;
-            }
-
-            Iterator &operator--() {
-                cur = static_cast<NodeType *>(cur->prev);
-                return *this;
-            }
-
-            Iterator operator--(int) {
-                Iterator tmp = *this;
-                --(*this);
-                return tmp;
-            }
-
-            bool operator==(const Iterator &rhs) const {
-                return cur == rhs.cur;
-            }
-
-            bool operator!=(const Iterator &rhs) const {
-                return !(rhs == *this);
-            }
-
-            operator const_iterator() const {
-                return const_iterator(cur);
-            }
-        };
-
-        void addToFree(FakeNode *v) {
-            linkNodes(v, free.next);
-            linkNodes(&free, v);
-        }
-
-        Node *getFreeNode() {
-            if (free.next == &free) {
-                mData.emplace_back();
-                addToFree(&mData.back());
-            }
-            FakeNode *res = free.next;
-            linkNodes(&free, res->next);
-            return static_cast<Node *>(res);
-        }
-
-        void linkNodes(FakeNode *left, FakeNode *right) {
-            left->next = right;
-            right->prev = left;
-        }
-
-        Vector<Node> mData;
-        size_t mSize;
-        FakeNode free;
-        FakeNode head;
-        bool optimized;
-    };
-}
+template<typename T>
+struct List {
+  static constexpr size_t MIN_SIZE = 16;
+
+  struct Node {
+    T value;
+    size_t prev{};
+    size_t next{};
+    bool deleted{};
+
+    static Node ctor() {
+      Node res;
+      return res;
+    }
+
+  };
+
+  static List ctor() {
+    List res;
+    res.nodes = Vector<Node>::ctor(MIN_SIZE);
+    res.nodes[0].prev = res.nodes[0].next = 0;
+    for (size_t i = 1; i < MIN_SIZE; ++i) {
+      res.nodes[i].next = i + 1;
+    }
+    res.size_ = 1;
+    res.free = 1;
+    res.optimized = false;
+    return res;
+  }
+
+  void cut(size_t pos) {
+    nodes[nodes[pos].next].prev = nodes[pos].prev;
+    nodes[nodes[pos].prev].next = nodes[pos].next;
+    nodes[pos].prev = pos;
+    nodes[pos].next = pos;
+  }
+
+  size_t getFreeIndex() {
+    if (size_ == nodes.size()) {
+      nodes.push_back(Node::ctor());
+      free = size_ + 1;
+      nodes[size_].deleted = false;
+      return size_;
+    } else {
+      size_t res = free;
+      free = next(free);
+      nodes[size_].deleted = false;
+      return res;
+    }
+  }
+
+  void addToFree(size_t pos) {
+    linkNodes(pos, free);
+    free = pos;
+  }
+
+  T &getByIndex(size_t index) {
+    return nodes[index].value;
+  }
+
+  /**
+   * Insert item before index
+   */
+  size_t insert(size_t index, const T &value) {
+    size_t freeIndex = getFreeIndex();
+    nodes[freeIndex].value = value;
+    linkNodes(prev(index), freeIndex);
+    linkNodes(freeIndex, index);
+    incSize();
+    return freeIndex;
+  }
+
+  size_t push_back(const T &value) {
+    return insert(end(), value);
+  }
+
+  size_t push_front(const T &value) {
+    return insert(begin(), value);
+  }
+
+  void erase(size_t index) {
+    decSize();
+    cut(index);
+    nodes[index].deleted = true;
+    addToFree(index);
+  }
+
+  void pop_front() {
+    erase(begin());
+  }
+
+  void pop_back() {
+    erase(prev(end()));
+  }
+
+  void optimize() {
+    if (optimized) return;
+    Vector<Node> newNodes = Vector<Node>::ctor(size_);
+    size_t curNodeIndex = begin();
+    for (size_t i = 1; i < size_; ++i) {
+      newNodes[i].value = nodes[curNodeIndex].value;
+      curNodeIndex = next(curNodeIndex);
+    }
+    nodes.dtor();
+    nodes = newNodes;
+    for (size_t i = 0; i + 1 < size_; ++i) {
+      linkNodes(i, i + 1);
+    }
+    linkNodes(size_ - 1, 0);
+    free = size_;
+    optimized = true;
+  }
+
+  size_t next(size_t index) {
+    return nodes[index].next;
+  }
+
+  size_t prev(size_t index) {
+    return nodes[index].prev;
+  }
+
+  void linkNodes(size_t left, size_t right) {
+    nodes[left].next = right;
+    nodes[right].prev = left;
+  }
+
+  void incSize() {
+    optimized = false;
+    size_++;
+  }
+
+  void decSize() {
+    optimized = false;
+    size_--;
+  }
+
+  size_t begin() {
+    return nodes[0].next;
+  }
+
+  size_t end() {
+    return 0;
+  }
+
+  T &back() {
+    return nodes[prev(0)].value;
+  }
+
+  T &front() {
+    return nodes[begin()].value;
+  }
+
+  void dump(FILE *fp, bool linear) {
+    fprintf(fp, "digraph list {\n"
+                "graph [rankdir = \"LR\"];\n"
+                "rank = same;\n"
+                "node[shape = record];\n");
+    for (size_t index = 0; index < nodes.size(); ++index) {
+      fprintf(fp, "\"node%ld\" [label = \"<index> %ld | <prev> prev | <next> next | <val> value = ",
+              index,
+              index);
+      printToFile(fp, nodes[index].value);
+
+      fprintf(fp, "\" %s];\n", nodes[index].deleted ? "fillcolor=green style=filled" : "");
+      if (linear && index != nodes.size() - 1) {
+        fprintf(fp, "\"node%ld\"->\"node%ld\"[style=invis weight=10000];\n", index, index + 1);
+      }
+    }
+
+    for (size_t nodeIndex = begin(); nodeIndex != end(); nodeIndex = next(nodeIndex)) {
+      size_t prevIndex = prev(nodeIndex);
+      size_t nextIndex = next(nodeIndex);
+
+      fprintf(fp, "\"node%ld\":prev->\"node%ld\":index;\n", nodeIndex, prevIndex);
+      fprintf(fp, "\"node%ld\":next->\"node%ld\":index;\n", nodeIndex, nextIndex);
+    }
+    fprintf(fp, "\"node%d\":prev->\"node%ld\":index;\n", 0, prev(0));
+    fprintf(fp, "\"node%d\":next->\"node%ld\":index;\n", 0, next(0));
+
+    fprintf(fp, "\"free\" [ label = \"free\"];\n");
+
+    if (size_ != nodes.size()) {
+      fprintf(fp, "\"free\"->\"node%ld\";\n", free);
+      size_t curIndex = free;
+      for (size_t i = 0; i + size_ + 1 < nodes.size(); ++i, curIndex = next(curIndex)) {
+        size_t nextIndex = next(curIndex);
+
+        fprintf(fp, "\"node%ld\":next->\"node%ld\";\n", curIndex, nextIndex);
+      }
+    }
+    fprintf(fp, "}\n");
+
+  }
+
+  Status status() {
+    Status vecCode = validate(nodes);
+    if (vecCode != Status::OK) {
+      return vecCode;
+    }
+
+    size_t it = begin();
+    for (int i = 0; i < size_; ++i) it = next(it);
+    if (it != begin()) return Status::INVALID;
+
+    for (int i = 0; i < size_; ++i) it = prev(it);
+    if (it != begin()) return Status::INVALID;
+
+    return Status::OK;
+  }
+
+  size_t size() {
+    return size_ - 1;
+  }
+
+  bool empty() {
+    return size() == 0;
+  }
+
+ private:
+  Vector<Node> nodes;
+  size_t size_;
+  size_t free;
+  bool optimized;
+};
+} // namespace mipt
