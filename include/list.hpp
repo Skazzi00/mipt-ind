@@ -190,12 +190,19 @@ struct List {
     fprintf(fp,
             "\"node0\" [label = \"<index> HEAD | <prev> prev | <next> next\" fillcolor=%s style=filled];\n",
             HeadNodeColor);
-    if (linear && 1 != nodes.size()) {
-      fprintf(fp, "\"node%d\"->\"node%d\"[style=invis weight=10000];\n", 0, 1);
+    if (1 != nodes.size()) {
+      fprintf(fp, "\"node%d\"->\"node%lu\"[style=invis weight=10000];\n", 0, linear ? 1 : next(0));
     }
 
-    for (size_t index = 1; index < nodes.size(); ++index) {
-      fprintf(fp, "\"node%ld\" [label = \"<index> %ld | <prev> prev | <next> next | <val> value = ", index, index);
+    size_t start = linear ? 1 : begin();
+    size_t end = linear ? nodes.size() : this->end();
+    size_t logicCnt = 1;
+
+    for (size_t index = start; index != end; linear ? ++index : index = next(index)) {
+      fprintf(fp,
+              "\"node%ld\" [label = \"<index> %ld | <prev> prev | <next> next | <val> value = ",
+              index,
+              linear ? index : logicCnt++);
       printToFile(fp, nodes[index].value);
       fprintf(fp, "\"");
 
@@ -204,34 +211,39 @@ struct List {
 
       fprintf(fp, "];\n");
 
-      if (linear && index != nodes.size() - 1) {
-        fprintf(fp, "\"node%ld\"->\"node%ld\"[style=invis weight=100000];\n", index, index + 1);
+      if (index != (linear ? nodes.size() - 1 : prev(end))) {
+        fprintf(fp, "\"node%ld\"->\"node%ld\"[style=invis weight=100000];\n", index, linear ? index + 1 : next(index));
+      }
+    }
+
+    if (!linear) {
+      for (size_t i = 1; i < nodes.size(); ++i) {
+        if (!nodes[i].deleted) continue;
+        fprintf(fp, "\"node%ld\" [label = \"<index> %ld | <prev> prev | <next> next | <val> value = ", i, logicCnt++);
+        printToFile(fp, nodes[i].value);
+        fprintf(fp, "\"fillcolor=%s style=filled];\n", FreeNodeColor);
       }
     }
   }
 
-  void dumpEdges(FILE *fp, bool linear) {
+  void dumpEdges(FILE *fp) {
     for (size_t nodeIndex = begin(), i = 0; i < size_; nodeIndex = next(nodeIndex), i++) {
       const size_t prevIndex = prev(nodeIndex);
       const size_t nextIndex = next(nodeIndex);
 
-      fprintf(fp,
-              "\"node%ld\":prev->\"node%ld\":index[weight=0 %s];\n",
-              nodeIndex,
-              prevIndex,
-              linear ? "constraint=false" : "");
-      fprintf(fp,
-              "\"node%ld\":next->\"node%ld\":index[weight=0 %s];\n",
-              nodeIndex,
-              nextIndex,
-              linear ? "constraint=false" : "");
+      fprintf(fp, "\"node%ld\":prev->\"node%ld\":index[weight=0 %s];\n", nodeIndex, prevIndex, "constraint=false");
+      fprintf(fp, "\"node%ld\":next->\"node%ld\":index[weight=0 %s];\n", nodeIndex, nextIndex, "constraint=false");
     }
   }
 
   void dumpEnd(FILE *fp) { fprintf(fp, "}\n"); }
 
   void dumpMeta(FILE *fp) {
-    fprintf(fp, "\"meta\" [label = \"capacity = %zu | size = %zu | free = %zu\" fillcolor=pink style=filled];\n", nodes.size(), size(), free);
+    fprintf(fp,
+            "\"meta\" [label = \"capacity = %zu | size = %zu | free = %zu\" fillcolor=pink style=filled];\n",
+            nodes.size(),
+            size(),
+            free);
   }
 
   void dumpFree(FILE *fp) {
@@ -247,7 +259,7 @@ struct List {
     }
   }
 
-  void dumpFields( FILE *fp) {
+  void dumpFields(FILE *fp) {
     fprintf(fp, "\tnodes     = [%p]\n", static_cast<void *>(nodes.data()));
     fprintf(fp, "\tsize_     = %zu\n", size_);
     fprintf(fp, "\tfree      = %zu\n", free);
@@ -261,7 +273,7 @@ struct List {
     dumpHeader(fp);
     dumpMeta(fp);
     dumpNodes(fp, linear);
-    dumpEdges(fp, linear);
+    dumpEdges(fp);
     dumpFree(fp);
     dumpEnd(fp);
   }
@@ -285,8 +297,9 @@ struct List {
     system("dot -Tpng gvtemp.gv -o gvtemp.png");
 
     fprintf(fp, "</code></pre>\n");
-    fprintf(fp, "<img src=gvtemp.png width=100%%>\n");
-    fprintf(fp, "<img src=gvtempl.png width=100%%>\n");
+
+    fprintf(fp, "<h1>Logical Order</h1>\n<img src=gvtemp.png width=100%%>\n");
+    fprintf(fp, "<h1>Physical Order</h1>\n<img src=gvtempl.png width=100%%>\n");
 
   }
 
