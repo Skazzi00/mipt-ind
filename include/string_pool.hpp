@@ -10,6 +10,10 @@ namespace mipt::StringPool {
 
 class Allocator;
 
+/**
+ * A representation of string allocated by StringPool::Allocator.
+ * Doesn't own a string.
+ */
 class StringView {
  public:
 
@@ -34,9 +38,14 @@ class StringView {
     return mLength == 0;
   }
 
-  // +1 : this > other
-  //  0 : this == other
-  // -1 : this < other
+  /**
+   *
+   * @param other string to compare with
+   * @return
+   * +1 : this > other <br>
+   *  0 : this == other <br>
+   * -1 : this < other
+   */
   int compare(const StringView &other) const noexcept {
     const size_t minLength = mLength < other.mLength ?
                              mLength : other.mLength;
@@ -77,6 +86,10 @@ class StringView {
   }
 };
 
+/**
+ * Contains a vector of large blocks in which it allocates space for new strings.
+ * If the space in the blocks runs out, then a new block is requested.
+ */
 class Allocator {
  public:
   static Allocator ctor() {
@@ -88,7 +101,9 @@ class Allocator {
     clear();
   }
 
-
+  /**
+   * Free all blocks
+   */
   void clear() {
     for (auto &pHeader : mBlocks) {
       Free(pHeader);
@@ -101,11 +116,20 @@ class Allocator {
     mpEnd = nullptr;
   }
 
+  /**
+   *
+   * @param ptr c-string to alloc
+   * @return StringView to copied string to allocator's memory.
+   */
   StringView allocString(const char *ptr) {
     return allocString(ptr, ptr + strlen(ptr));
   }
 
-  // return empty String if string to big, or not enough memory
+  /**
+   * @param start of string
+   * @param end of string
+   * @return empty String if string to big, or not enough memory
+   */
   StringView allocString(const char *start, const char *end) {
     const size_t length = static_cast<const size_t>(end - start);
     const size_t lengthWithNull = length + 1;
@@ -123,7 +147,9 @@ class Allocator {
   };
 
   enum {
-    BlockSize       = 512 * 1024, // todo сделать размер больших строк кратным BlockSize
+    // Allocated blocks must be minimum this size. If string length greater, then allocates a block of string size
+    BlockSize = 512 * 1024,
+    // Strings larger then MaxStringLength will not be allocated
     MaxStringLength = BlockSize * 2
   };
 
@@ -140,7 +166,14 @@ class Allocator {
     return free(ptr);
   }
 
-  // return nullptr if length to big
+  /**
+   * Finds the required memory in current block,
+   * if there is not enough memory in the current block,
+   * then allocates a new large block. This block becomes current.
+   *
+   * @param length required memory size
+   * @return pointer to allocated memory or nullptr if length to big
+   */
   char *allocMem(size_t length) {
     if (length > MaxStringLength) {
       return nullptr;

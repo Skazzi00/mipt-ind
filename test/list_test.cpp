@@ -18,7 +18,7 @@ TEST(ListCorrectness, insert_begin) {
     }
 
     FILE *fp = fopen("listdp.gv", "w");
-    a.dump(fp, true);
+    a.dumpGraph(fp, true);
     fclose(fp);
     a.dtor();
   }
@@ -189,4 +189,26 @@ TEST(ListCorrectness, optimize) {
   }
 
   element<size_t>::expect_no_instances();
+}
+
+TEST(ListDed, middle) {
+  size_t const N = 17;
+  {
+    List<int> a = List<int>::ctor();
+
+    for (int i = 0; i != N; ++i) {
+      a.push_back(i);
+    }
+
+    a.insert(N / 2 + 2, -1);
+    a.insert(N / 2 + 1, -2);
+    a.pop_back();
+    a.pop_back();
+
+    FILE *fp = fopen("listdp.html", "w");
+    a.dump(fp);
+    fclose(fp);
+
+    a.dtor();
+  }
 }

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.17)
 project(mipt_ind)
 
 set(CMAKE_CXX_STANDARD 17)
-set(COMMON_FLAGS " -Werror -Wall -Wextra -pedantic -Wshadow -Wconversion -Wsign-conversion  -Wignored-qualifiers -Wwrite-strings -DFAST_IOSTREAM ")
+set(COMMON_FLAGS " -Werror -Wall -Wextra -pedantic -Wshadow -Wconversion -Wsign-conversion  -Wignored-qualifiers -Wwrite-strings -DFAST_IOSTREAM -fsanitize=leak -fsanitize=address -fsanitize=undefined -fPIE -fno-omit-frame-pointer")
 set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++17")
 set(CMAKE_C_FLAGS ${COMMON_FLAGS})
 
@@ -65,7 +65,8 @@ add_executable(Vdisassembler src/vdisassembler.cpp)
 
 target_link_libraries(Vdisassembler miptLib)
 
+add_executable(akinator src/akinator.cpp)
+
+target_link_libraries(akinator miptLib)
+
 add_executable(playground src/playground.cpp)
-
-target_link_libraries(playground miptLib)
-

@@ -31,6 +31,7 @@ struct List {
     res.nodes[0].prev = res.nodes[0].next = 0;
     for (size_t i = 1; i < MIN_SIZE; ++i) {
       res.nodes[i].next = i + 1;
+      res.nodes[i].deleted = true;
     }
     res.size_ = 1;
     res.free = 1;
@@ -60,6 +61,7 @@ struct List {
   }
 
   void addToFree(size_t pos) {
+    nodes[pos].deleted = true;
     linkNodes(pos, free);
     free = pos;
   }
@@ -87,7 +89,6 @@ struct List {
   size_t push_front(const T &value) {
     return insert(begin(), value);
   }
-
   void erase(size_t index) {
     decSize();
     cut(index);
@@ -174,56 +175,123 @@ struct List {
     return nodes[begin()].value;
   }
 
-  void dump(FILE *fp, bool linear) {
+ private:
+  static constexpr const char *FreeNodeColor = "green";
+  static constexpr const char *HeadNodeColor = "lightblue";
+
+  static void dumpHeader(FILE *fp) {
     fprintf(fp, "digraph list {\n"
                 "graph [rankdir = \"LR\"];\n"
                 "rank = same;\n"
                 "node[shape = record];\n");
-    fprintf(fp, "\"meta\" [label = \"capacity = %zu | size = %zu | free = %zu\" ];\n", nodes.size(), size_, free);
-    fprintf(fp, "\"node0\" [label = \"<index> HEAD | <prev> prev | <next> next\" fillcolor=blue style=filled];\n");
+  }
+
+  void dumpNodes(FILE *fp, bool linear) {
+    fprintf(fp,
+            "\"node0\" [label = \"<index> HEAD | <prev> prev | <next> next\" fillcolor=%s style=filled];\n",
+            HeadNodeColor);
     if (linear && 1 != nodes.size()) {
       fprintf(fp, "\"node%d\"->\"node%d\"[style=invis weight=10000];\n", 0, 1);
     }
+
     for (size_t index = 1; index < nodes.size(); ++index) {
-      fprintf(fp, "\"node%ld\" [label = \"<index> %ld | <prev> prev | <next> next | <val> value = ",
-              index,
-              index);
+      fprintf(fp, "\"node%ld\" [label = \"<index> %ld | <prev> prev | <next> next | <val> value = ", index, index);
       printToFile(fp, nodes[index].value);
       fprintf(fp, "\"");
-      fprintf(fp, " %s];\n", nodes[index].deleted ? "fillcolor=green style=filled" : "");
+
+      if (nodes[index].deleted)
+        fprintf(fp, "fillcolor=%s style=filled", FreeNodeColor);
+
+      fprintf(fp, "];\n");
 
       if (linear && index != nodes.size() - 1) {
-        fprintf(fp, "\"node%ld\"->\"node%ld\"[style=invis weight=10000];\n", index, index + 1);
+        fprintf(fp, "\"node%ld\"->\"node%ld\"[style=invis weight=100000];\n", index, index + 1);
       }
     }
+  }
 
-    for (size_t nodeIndex = begin(); nodeIndex != end(); nodeIndex = next(nodeIndex)) {
-      size_t prevIndex = prev(nodeIndex);
-      size_t nextIndex = next(nodeIndex);
+  void dumpEdges(FILE *fp, bool linear) {
+    for (size_t nodeIndex = begin(), i = 0; i < size_; nodeIndex = next(nodeIndex), i++) {
+      const size_t prevIndex = prev(nodeIndex);
+      const size_t nextIndex = next(nodeIndex);
 
-      fprintf(fp, "\"node%ld\":prev->\"node%ld\":index;\n", nodeIndex, prevIndex);
-      fprintf(fp, "\"node%ld\":next->\"node%ld\":index;\n", nodeIndex, nextIndex);
+      fprintf(fp,
+              "\"node%ld\":prev->\"node%ld\":index[weight=0 %s];\n",
+              nodeIndex,
+              prevIndex,
+              linear ? "constraint=false" : "");
+      fprintf(fp,
+              "\"node%ld\":next->\"node%ld\":index[weight=0 %s];\n",
+              nodeIndex,
+              nextIndex,
+              linear ? "constraint=false" : "");
     }
-    fprintf(fp, "\"node%d\":prev->\"node%ld\":index;\n", 0, prev(0));
-    fprintf(fp, "\"node%d\":next->\"node%ld\":index;\n", 0, next(0));
+  }
 
-    fprintf(fp, "\"free\" [ label = \"free\"];\n");
+  void dumpEnd(FILE *fp) { fprintf(fp, "}\n"); }
+
+  void dumpMeta(FILE *fp) {
+    fprintf(fp, "\"meta\" [label = \"capacity = %zu | size = %zu | free = %zu\" fillcolor=pink style=filled];\n", nodes.size(), size(), free);
+  }
+
+  void dumpFree(FILE *fp) {
+    fprintf(fp, "\"free\" [ label = \"free\" fillcolor=lightgreen style=filled];\n");
 
     if (size_ != nodes.size()) {
       fprintf(fp, "\"free\"->\"node%ld\";\n", free);
       size_t curIndex = free;
       for (size_t i = 0; i + size_ + 1 < nodes.size(); ++i, curIndex = next(curIndex)) {
         size_t nextIndex = next(curIndex);
-
         fprintf(fp, "\"node%ld\":next->\"node%ld\";\n", curIndex, nextIndex);
       }
     }
+  }
+
+  void dumpFields( FILE *fp) {
+    fprintf(fp, "\tnodes     = [%p]\n", static_cast<void *>(nodes.data()));
+    fprintf(fp, "\tsize_     = %zu\n", size_);
+    fprintf(fp, "\tfree      = %zu\n", free);
+    fprintf(fp, "\tcapacity  = %zu\n", nodes.capacity());
+    fprintf(fp, "\toptimized = %s\n", optimized ? "true" : "false");
+  }
+
+ public:
+
+  void dumpGraph(FILE *fp, bool linear) {
+    dumpHeader(fp);
+    dumpMeta(fp);
+    dumpNodes(fp, linear);
+    dumpEdges(fp, linear);
+    dumpFree(fp);
+    dumpEnd(fp);
+  }
+  void dump(FILE *fp) {
+    fprintf(fp, "<pre><code>\n");
+
+    fprintf(fp, "List&#x3C;%s&#x3E; [0x%zX] {\n", typeid(T).name(), reinterpret_cast<size_t>(this));
+
+    dumpFields(fp);
+
     fprintf(fp, "}\n");
+
+    FILE *gvTmpFile = fopen("gvtemp.gv", "w");
+    dumpGraph(gvTmpFile, true);
+    fclose(gvTmpFile);
+    system("dot -Tpng gvtemp.gv -o gvtempl.png");
+
+    gvTmpFile = fopen("gvtemp.gv", "w");
+    dumpGraph(gvTmpFile, false);
+    fclose(gvTmpFile);
+    system("dot -Tpng gvtemp.gv -o gvtemp.png");
+
+    fprintf(fp, "</code></pre>\n");
+    fprintf(fp, "<img src=gvtemp.png width=100%%>\n");
+    fprintf(fp, "<img src=gvtempl.png width=100%%>\n");
 
   }
 
   Status status() {
-    Status vecCode = validate(nodes);
+    const Status vecCode = validate(nodes);
     if (vecCode != Status::OK) {
       return vecCode;
     }
