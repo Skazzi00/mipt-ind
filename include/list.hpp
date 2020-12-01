@@ -231,8 +231,8 @@ struct List {
       const size_t prevIndex = prev(nodeIndex);
       const size_t nextIndex = next(nodeIndex);
 
-      fprintf(fp, "\"node%ld\":prev->\"node%ld\":index[weight=0 %s];\n", nodeIndex, prevIndex, "constraint=false");
-      fprintf(fp, "\"node%ld\":next->\"node%ld\":index[weight=0 %s];\n", nodeIndex, nextIndex, "constraint=false");
+      fprintf(fp, "\"node%ld\":prev->\"node%ld\"[weight=0 %s];\n", nodeIndex, prevIndex, "constraint=false");
+      fprintf(fp, "\"node%ld\":next->\"node%ld\"[weight=0 %s];\n", nodeIndex, nextIndex, "constraint=false");
     }
   }
 
