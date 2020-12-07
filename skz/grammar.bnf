@@ -1,0 +1,43 @@
+Start ::= FuncDecl*
+
+Expr ::= AssignExpr
+AssignExpr ::= CondExpr | Identifier ('=' | '+=' | '-=' | '*=' | '/=') CondExpr
+CondExpr::= AddSubExpr  ('<' AddSubExpr ',' AddSubExpr '>')?
+AddSubExpr ::= MulDivExpr {('+' | '-') MulDivExpr}*
+MulDivExpr ::= UnaryExpr {('+' | '-') UnaryExpr}*
+UnaryExpr ::= PrimaryExpr | UnaryOperator PrimaryExpr
+UnaryOperator ::= '+' | '-'
+PrimaryExpr ::= '(' Expr ')' | Identifier | Number
+
+Identifier ::= Letter (Letter | Digit)*
+Number ::= Digit+
+
+Digit ::= "regexp:[0-9]"
+Letter ::= EngLetter | '_'
+EngLetter ::= "regexp:[a-zA-Z]"
+
+
+FuncDecl ::= 'function' Identifier '(' ListOfArgs? ')' BlockStmt
+ListOfArgs ::= Identifier {',' Identifier}*
+
+Statement ::=  BlockStmt
+             | ReturnStmt
+             | VarDefStmt
+             | PrintlnStmt
+             | PrintCharStmt
+             | IfStmt
+             | WhileStmt
+             | ExprStmt
+
+BlockStmt ::= '[' Statement * ']'
+ReturnStmt ::= '->' Expr ';'
+VarDefStmt ::= 'var' Identifier ':' (Expr | '~') ';'
+PrintlnStmt ::= '<' Expr '>' ';'
+PrintCharStmt ::= '>' Expr ';'
+IfStmt ::= 'if' '(' Expr ')' Statement {'else' Statement}?
+WhileStmt ::= 'while' '(' Expr ')' Statement
+ExprStmt ::= Expr ';'
+
+
+
+

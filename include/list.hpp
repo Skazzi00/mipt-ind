@@ -71,43 +71,76 @@ struct List {
   }
 
   /**
-   * Insert item before index
+   * Insert item before index.
+   * If insert at end of list, list remains optimized.
    */
   size_t insert(size_t index, const T &value) {
+    bool prevOptimized = optimized;
     size_t freeIndex = getFreeIndex();
     nodes[freeIndex].value = value;
     linkNodes(prev(index), freeIndex);
     linkNodes(freeIndex, index);
     incSize();
+    if (index == end()) {
+      optimized = prevOptimized;
+    }
     return freeIndex;
   }
 
+  /**
+   * Doesn't change optimized state
+   */
   size_t push_back(const T &value) {
-    return insert(end(), value);
+    bool prevOptimized = optimized;
+
+    size_t res = insert(end(), value);
+
+    optimized = prevOptimized;
+    return res;
   }
 
   size_t push_front(const T &value) {
     return insert(begin(), value);
   }
+
+  /**
+    * If erased from end or begin, optimized state doesnt change
+    */
   void erase(size_t index) {
+    bool prevOptimized = optimized;
     decSize();
     cut(index);
     nodes[index].deleted = true;
     addToFree(index);
+    if (index == begin() || index == prev(end())) {
+      optimized = prevOptimized;
+    }
   }
-
+  /**
+   * Doesn't change optimized state
+   */
   void pop_front() {
+    bool prevOptimized = optimized;
     erase(begin());
+    optimized = prevOptimized;
   }
 
+  /**
+   * Doesn't change optimized state
+   */
   void pop_back() {
+    bool prevOptimized = optimized;
     erase(prev(end()));
+    optimized = prevOptimized;
   }
 
   /**
    * If returned 0, then logic index incorrect
    */
   size_t slowLinearSearchFromLogicalToPhysicalIndex(size_t logicIndex) {
+    if (optimized) {
+      return begin() + logicIndex;
+    }
     if (logicIndex >= size()) {
       return 0;
     }

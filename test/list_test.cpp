@@ -40,7 +40,7 @@ TEST(ListCorrectness, insert_end) {
     }
 
     a.optimize();
-    for (size_t i = 0; i != N; ++i) EXPECT_EQ(2 * i + 1, a.getByIndex(i + 1));
+    for (size_t i = 0, it = a.begin(); i != N; ++i, it++) EXPECT_EQ(2 * i + 1, a.getByIndex(it));
     a.dtor();
 
   }
@@ -56,8 +56,7 @@ TEST(ListCorrectness, erase_end) {
 
     for (size_t i = 0; i != N; ++i) a.erase(a.prev(a.end()));
 
-    a.optimize();
-    for (size_t i = 0; i != N; ++i) EXPECT_EQ(2 * i + 1, a.getByIndex(i + 1));
+    for (size_t i = 0, it = a.begin(); i != N; ++i, ++it) EXPECT_EQ(2 * i + 1, a.getByIndex(it));
     a.dtor();
 
   }
@@ -74,7 +73,7 @@ TEST(ListCorrectness, erase_begin) {
     for (size_t i = 0; i != N; ++i) a.erase(a.begin());
 
     a.optimize();
-    for (size_t i = 0; i != N; ++i) EXPECT_EQ(2 * (i + N) + 1, a.getByIndex(i + 1));
+    for (size_t i = 0, it = a.begin(); i != N; ++i, it++) EXPECT_EQ(2 * (i + N) + 1, a.getByIndex(it));
     a.dtor();
 
   }
@@ -93,9 +92,9 @@ TEST(ListCorrectness, erase) {
       a.erase(it);
       size_t cnt = 0;
       a.optimize();
-      for (size_t j = 0; j != N - 1; ++j) {
+      for (size_t j = 0, iter = a.begin(); j != N - 1; ++j, iter++) {
         if (j == i) ++cnt;
-        EXPECT_EQ(2 * cnt + 1, a.getByIndex(j + 1));
+        EXPECT_EQ(2 * cnt + 1, a.getByIndex(iter));
         ++cnt;
       }
       a.dtor();
@@ -144,8 +143,8 @@ TEST(ListCorrectness, push_back) {
 
     a.optimize();
 
-    for (size_t i = 0; i != N; ++i)
-      EXPECT_EQ(i, a.getByIndex(i + 1));
+    for (size_t i = 0, it = a.begin(); i != N; ++i, it++)
+      EXPECT_EQ(i, a.getByIndex(it));
     a.dtor();
 
   }
@@ -161,8 +160,8 @@ TEST(ListCorrectness, push_front) {
       a.push_front(i);
 
     a.optimize();
-    for (size_t i = 0; i != N; ++i)
-      EXPECT_EQ(N - 1 - i, a.getByIndex(i + 1));
+    for (size_t i = 0, it = a.begin(); i != N; ++i, it++)
+      EXPECT_EQ(N - 1 - i, a.getByIndex(it));
     a.dtor();
 
   }
@@ -180,10 +179,9 @@ TEST(ListCorrectness, optimize) {
     for (size_t i = 0; i != N / 2; ++i)
       a.pop_front();
 
-    a.optimize();
 
-    for (size_t i = N / 2; i != N; ++i)
-      EXPECT_EQ(i, a.getByIndex(i - N / 2 + 1));
+    for (size_t i = 0, it = a.begin(); i != N / 2; ++i, ++it)
+      EXPECT_EQ(i + N / 2, a.getByIndex(it));
     a.dtor();
 
   }

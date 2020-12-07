@@ -5,6 +5,10 @@ struct mytype {
   int x;
   int y;
   int z;
+
+  void method() {
+
+  }
   mytype() {
     printf("dummy ctor called\n");
   }
@@ -17,12 +21,17 @@ class optional {
   };
   bool isExist;
  public:
-  optional() : isExist(false) {}
+  optional() : isExist(false) {
+
+  }
+
+  T *operator->() { return &val; }
 };
 
 int main() {
-  std::optional<mytype> opt;
+  optional<mytype> opt;
 
+  opt->method();
   printf("%lu\n", sizeof(opt));
 
 }
