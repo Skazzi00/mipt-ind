@@ -17,9 +17,6 @@ TEST(ListCorrectness, insert_begin) {
       a.erase(a.prev(a.end()));
     }
 
-    FILE *fp = fopen("listdp.gv", "w");
-    a.dumpGraph(fp, true);
-    fclose(fp);
     a.dtor();
   }
   element<size_t>::expect_no_instances();
@@ -72,7 +69,9 @@ TEST(ListCorrectness, erase_begin) {
 
     for (size_t i = 0; i != N; ++i) a.erase(a.begin());
 
-    a.optimize();
+    a.insert(a.begin(), 1);
+    EXPECT_TRUE(a.isOptimized());
+    a.pop_front();
     for (size_t i = 0, it = a.begin(); i != N; ++i, it++) EXPECT_EQ(2 * (i + N) + 1, a.getByIndex(it));
     a.dtor();
 
@@ -81,7 +80,7 @@ TEST(ListCorrectness, erase_begin) {
 }
 
 TEST(ListCorrectness, erase) {
-  size_t const N = 500;
+  size_t const N = 100;
   {
     for (size_t i = 0; i != N; ++i) {
       List<element<size_t> > a = List<element<size_t >>::ctor();
@@ -179,7 +178,6 @@ TEST(ListCorrectness, optimize) {
     for (size_t i = 0; i != N / 2; ++i)
       a.pop_front();
 
-
     for (size_t i = 0, it = a.begin(); i != N / 2; ++i, ++it)
       EXPECT_EQ(i + N / 2, a.getByIndex(it));
     a.dtor();
@@ -189,7 +187,7 @@ TEST(ListCorrectness, optimize) {
   element<size_t>::expect_no_instances();
 }
 
-TEST(ListDed, middle) {
+TEST(ListCorrectness, middle) {
   size_t const N = 17;
   {
     List<int> a = List<int>::ctor();
@@ -209,4 +207,28 @@ TEST(ListDed, middle) {
 
     a.dtor();
   }
+}
+
+TEST(ListCorrectness, begin_end_push) {
+  List<int> a = List<int>::ctor();
+  a.push_back(1);
+  a.push_back(2);
+  a.push_back(3);
+  a.push_back(4);
+  a.push_back(5);
+  a.pop_front();
+  a.pop_back();
+  a.pop_front();
+
+  a.push_front(6);
+  a.push_back(7);
+  a.push_front(8);
+
+  EXPECT_TRUE(a.isOptimized());
+
+  FILE *fp = fopen("beginend.html", "w");
+  a.dump(fp);
+  fclose(fp);
+
+  a.dtor();
 }

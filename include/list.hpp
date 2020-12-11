@@ -29,19 +29,26 @@ struct List {
     List res;
     res.nodes = Vector<Node>::ctor(MIN_SIZE);
     res.nodes[0].prev = res.nodes[0].next = 0;
+    res.nodes[0].deleted = false;
     for (size_t i = 1; i < MIN_SIZE; ++i) {
       res.nodes[i].next = i + 1;
       res.nodes[i].deleted = true;
     }
     res.size_ = 1;
     res.free = 1;
-    res.optimized = false;
+    res.optimized = true;
     return res;
   }
 
   void cut(size_t pos) {
-    nodes[nodes[pos].next].prev = nodes[pos].prev;
-    nodes[nodes[pos].prev].next = nodes[pos].next;
+    if (nodes[pos].next != static_cast<size_t>(-1))
+      nodes[nodes[pos].next].prev = nodes[pos].prev;
+
+    if (nodes[pos].prev != static_cast<size_t>(-1))
+      nodes[nodes[pos].prev].next = nodes[pos].next;
+    else
+      free = nodes[pos].next;
+
     nodes[pos].prev = pos;
     nodes[pos].next = pos;
   }
@@ -54,8 +61,10 @@ struct List {
       return size_;
     } else {
       size_t res = free;
+      if (next(free) < nodes.size())
+        nodes[next(free)].prev = static_cast<size_t>(-1);
       free = next(free);
-      nodes[size_].deleted = false;
+      nodes[res].deleted = false;
       return res;
     }
   }
@@ -63,6 +72,7 @@ struct List {
   void addToFree(size_t pos) {
     nodes[pos].deleted = true;
     linkNodes(pos, free);
+    nodes[pos].prev = static_cast<size_t>(-1);
     free = pos;
   }
 
@@ -72,16 +82,25 @@ struct List {
 
   /**
    * Insert item before index.
-   * If insert at end of list, list remains optimized.
+   * If insert at end or begin (if was place left from linear block) of list, list remains optimized.
    */
   size_t insert(size_t index, const T &value) {
     bool prevOptimized = optimized;
-    size_t freeIndex = getFreeIndex();
+    const bool isBeginInsertOptimized = begin() != 0 && optimized && index == begin() && nodes[begin() - 1].deleted;
+    const bool isEndInsert = end() == index;
+    size_t freeIndex = 0;
+    if (isBeginInsertOptimized) {
+      cut(begin() - 1);
+      freeIndex = begin() - 1;
+      nodes[freeIndex].deleted = false;
+    } else {
+      freeIndex = getFreeIndex();
+    }
     nodes[freeIndex].value = value;
     linkNodes(prev(index), freeIndex);
     linkNodes(freeIndex, index);
     incSize();
-    if (index == end()) {
+    if (isEndInsert || isBeginInsertOptimized) {
       optimized = prevOptimized;
     }
     return freeIndex;
@@ -91,12 +110,7 @@ struct List {
    * Doesn't change optimized state
    */
   size_t push_back(const T &value) {
-    bool prevOptimized = optimized;
-
-    size_t res = insert(end(), value);
-
-    optimized = prevOptimized;
-    return res;
+    return insert(end(), value);
   }
 
   size_t push_front(const T &value) {
@@ -107,12 +121,14 @@ struct List {
     * If erased from end or begin, optimized state doesnt change
     */
   void erase(size_t index) {
-    bool prevOptimized = optimized;
+    const bool prevOptimized = optimized;
+    const bool isBeginErase = index == begin();
+    const bool isEndErase = prev(end()) == index;
     decSize();
     cut(index);
     nodes[index].deleted = true;
     addToFree(index);
-    if (index == begin() || index == prev(end())) {
+    if (isBeginErase || isEndErase) {
       optimized = prevOptimized;
     }
   }
@@ -120,18 +136,14 @@ struct List {
    * Doesn't change optimized state
    */
   void pop_front() {
-    bool prevOptimized = optimized;
     erase(begin());
-    optimized = prevOptimized;
   }
 
   /**
    * Doesn't change optimized state
    */
   void pop_back() {
-    bool prevOptimized = optimized;
     erase(prev(end()));
-    optimized = prevOptimized;
   }
 
   /**
@@ -149,6 +161,10 @@ struct List {
       phAddress = next(phAddress);
     }
     return phAddress;
+  }
+
+  bool isOptimized() {
+    return optimized;
   }
 
   void optimize() {
@@ -310,7 +326,10 @@ struct List {
     dumpFree(fp);
     dumpEnd(fp);
   }
+
   void dump(FILE *fp) {
+    static int tmpFileCnt = 0;
+    static const int CmdSize = 128;
     fprintf(fp, "<pre><code>\n");
 
     fprintf(fp, "List&#x3C;%s&#x3E; [0x%zX] {\n", typeid(T).name(), reinterpret_cast<size_t>(this));
@@ -318,22 +337,23 @@ struct List {
     dumpFields(fp);
 
     fprintf(fp, "}\n");
+    fprintf(fp, "</code></pre>\n");
+
+    char cmd[CmdSize] = "";
 
     FILE *gvTmpFile = fopen("gvtemp.gv", "w");
     dumpGraph(gvTmpFile, true);
     fclose(gvTmpFile);
-    system("dot -Tpng gvtemp.gv -o gvtempl.png");
+    sprintf(cmd, "dot -Tpng gvtemp.gv -o gvtemp%d.png", ++tmpFileCnt);
+    fprintf(fp, "<h1>Logical Order</h1>\n<img src=gvtemp%d.png width=100%%>\n", (int) tmpFileCnt);
+    system(cmd);
 
     gvTmpFile = fopen("gvtemp.gv", "w");
     dumpGraph(gvTmpFile, false);
     fclose(gvTmpFile);
-    system("dot -Tpng gvtemp.gv -o gvtemp.png");
-
-    fprintf(fp, "</code></pre>\n");
-
-    fprintf(fp, "<h1>Logical Order</h1>\n<img src=gvtemp.png width=100%%>\n");
-    fprintf(fp, "<h1>Physical Order</h1>\n<img src=gvtempl.png width=100%%>\n");
-
+    sprintf(cmd, "dot -Tpng gvtemp.gv -o gvtemp%d.png", ++tmpFileCnt);
+    fprintf(fp, "<h1>Physical Order</h1>\n<img src=gvtemp%d.png width=100%%>\n", (int) tmpFileCnt);
+    system(cmd);
   }
 
   Status status() {
