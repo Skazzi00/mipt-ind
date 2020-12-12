@@ -113,6 +113,9 @@ struct List {
     return insert(end(), value);
   }
 
+  /**
+   * Doesn't change optimized state
+   */
   size_t push_front(const T &value) {
     return insert(begin(), value);
   }
@@ -345,14 +348,15 @@ struct List {
     dumpGraph(gvTmpFile, true);
     fclose(gvTmpFile);
     sprintf(cmd, "dot -Tpng gvtemp.gv -o gvtemp%d.png", ++tmpFileCnt);
-    fprintf(fp, "<h1>Logical Order</h1>\n<img src=gvtemp%d.png width=100%%>\n", (int) tmpFileCnt);
+    fprintf(fp, "<h1>Physical Order</h1>\n<img src=gvtemp%d.png width=100%%>\n", (int) tmpFileCnt);
     system(cmd);
 
     gvTmpFile = fopen("gvtemp.gv", "w");
     dumpGraph(gvTmpFile, false);
     fclose(gvTmpFile);
     sprintf(cmd, "dot -Tpng gvtemp.gv -o gvtemp%d.png", ++tmpFileCnt);
-    fprintf(fp, "<h1>Physical Order</h1>\n<img src=gvtemp%d.png width=100%%>\n", (int) tmpFileCnt);
+    fprintf(fp, "<h1>Logical Order</h1>\n<img src=gvtemp%d.png width=100%%>\n", (int) tmpFileCnt);
+
     system(cmd);
   }
 
