@@ -11,8 +11,12 @@ jobs:
         run: sudo apt-get install libsfml-dev
         
         
-      - name: Submodule
-        run: git submodule update --init
+      - name: Checkout reposistory
+        uses: actions/checkout@master
+        
+      - name: Checkout submodules
+        uses: textbook/git-checkout-submodule-action@master
+      
       - name: Generate build files using cmake
         run: cmake -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++ .
       - name: Run make
