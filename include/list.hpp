@@ -18,26 +18,17 @@ struct List {
     size_t next{};
     bool deleted{};
 
-    static Node ctor() {
-      Node res;
-      return res;
-    }
+    Node() {}
 
   };
 
-  static List ctor() {
-    List res;
-    res.nodes = Vector<Node>::ctor(MIN_SIZE);
-    res.nodes[0].prev = res.nodes[0].next = 0;
-    res.nodes[0].deleted = false;
+  List() : nodes(MIN_SIZE), size_(1), free(1), optimized(true) {
+    nodes[0].prev = nodes[0].next = 0;
+    nodes[0].deleted = false;
     for (size_t i = 1; i < MIN_SIZE; ++i) {
-      res.nodes[i].next = i + 1;
-      res.nodes[i].deleted = true;
+      nodes[i].next = i + 1;
+      nodes[i].deleted = true;
     }
-    res.size_ = 1;
-    res.free = 1;
-    res.optimized = true;
-    return res;
   }
 
   void cut(size_t pos) {
@@ -55,7 +46,7 @@ struct List {
 
   size_t getFreeIndex() {
     if (size_ == nodes.size()) {
-      nodes.push_back(Node::ctor());
+      nodes.emplace_back();
       free = size_ + 1;
       nodes[size_].deleted = false;
       return size_;
@@ -86,8 +77,8 @@ struct List {
    */
   size_t insert(size_t index, const T &value) {
     bool prevOptimized = optimized;
-    const bool isBeginInsertOptimized = begin() != 0 && optimized && index == begin() && nodes[begin() - 1].deleted;
-    const bool isEndInsert = end() == index;
+    const bool isBeginInsertOptimized = (begin() != 0 && optimized && index == begin() && nodes[begin() - 1].deleted);
+    const bool isEndInsert = (end() == index);
     size_t freeIndex = 0;
     if (isBeginInsertOptimized) {
       cut(begin() - 1);
@@ -172,7 +163,7 @@ struct List {
 
   void optimize() {
     if (optimized) return;
-    Vector<Node> newNodes = Vector<Node>::ctor(size_);
+    Vector<Node> newNodes(size_);
     size_t curNodeIndex = begin();
     for (size_t i = 1; i < size_; ++i) {
       newNodes[i].value = nodes[curNodeIndex].value;
@@ -382,10 +373,6 @@ struct List {
 
   bool empty() {
     return size() == 0;
-  }
-
-  void dtor() {
-    nodes.dtor();
   }
 
  private:

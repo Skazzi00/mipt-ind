@@ -16,11 +16,7 @@ class Allocator;
  */
 class StringView {
  public:
-
-  static StringView ctor() {
-    StringView res;
-    return res;
-  }
+  StringView() {}
 
   const char *c_str() const noexcept {
     if (!empty()) {
@@ -78,12 +74,7 @@ class StringView {
 
   char mNil{};
 
-  static StringView ctor(const char *ptr, size_t length) noexcept {
-    StringView res;
-    res.mPtr = ptr;
-    res.mLength = length;
-    return res;
-  }
+  StringView(const char *ptr, size_t length) noexcept: mPtr(ptr), mLength(length) {}
 };
 
 /**
@@ -92,19 +83,17 @@ class StringView {
  */
 class Allocator {
  public:
-  static Allocator ctor() {
-    Allocator res;
-    return res;
-  }
 
-  void dtor() noexcept {
+  Allocator() {}
+
+  ~Allocator() noexcept {
     clear();
   }
 
   /**
    * Free all blocks
    */
-  void clear() {
+  void clear() noexcept{
     for (auto &pHeader : mBlocks) {
       Free(pHeader);
       pHeader = nullptr;
@@ -136,7 +125,7 @@ class Allocator {
     char *ptr = allocMem(lengthWithNull);
     memcpy(ptr, start, length);
     ptr[length] = '\0';
-    return StringView::ctor(ptr, length);
+    return StringView(ptr, length);
   }
 
  private:

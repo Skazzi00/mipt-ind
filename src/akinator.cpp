@@ -16,8 +16,8 @@ int main() {
   dbStr[dbStrSize] = '\0';
   fclose(db);
 
-  StringPool::Allocator allocator = StringPool::Allocator::ctor();
-  DecisionTree decision_tree = DecisionTree::ctor(dbStr, &allocator);
+  StringPool::Allocator allocator;
+  DecisionTree decision_tree(dbStr, &allocator);
 
   while (true) {
     printf("Choose mode:\n"
@@ -47,7 +47,4 @@ int main() {
   FILE *dbOut = fopen("akinator.db", "w");
   decision_tree.serialize(dbOut);
   fclose(dbOut);
-
-  decision_tree.dtor();
-  allocator.dtor();
 }

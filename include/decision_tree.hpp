@@ -4,6 +4,7 @@
 #include <utility>
 #include <string>
 #include <cstdio>
+#include <cstdlib>
 #include <unistd.h>
 
 #include "string_view.hpp"
@@ -20,36 +21,13 @@ class DecisionTree {
     Node *right;
     StringPool::StringView data;
 
-    static Node ctor() {
-      Node res{};
-      pCtor(&res);
-      return res;
-    }
+    Node() : left(nullptr), right(nullptr), data() {}
 
-    static void pCtor(Node *node) {
-      node->left = nullptr;
-      node->right = nullptr;
-      node->data = StringPool::StringView::ctor();
-    }
-
-    static Node *New() {
-      Node *res = static_cast<Node *>(calloc(1, sizeof(Node)));
-      pCtor(res);
-      return res;
-    }
-
-    void dtor() {
-      if (left) {
-        left->dtor();
-        free(left);
-        left = nullptr;
-      }
-
-      if (right) {
-        right->dtor();
-        free(right);
-        right = nullptr;
-      }
+    ~Node() {
+      delete left;
+      left = nullptr;
+      delete right;
+      right = nullptr;
     }
   };
 
@@ -135,12 +113,7 @@ class DecisionTree {
     string_view data;
     bool isTrue;
 
-    static Fact ctor(const string_view &data, bool isTrue) {
-      Fact res;
-      res.data = data;
-      res.isTrue = isTrue;
-      return res;
-    }
+    Fact(const string_view &data, bool isTrue) : data(data), isTrue(isTrue) {}
 
     bool equal(const Fact &other) {
       return data == other.data && isTrue == other.isTrue;
@@ -152,20 +125,17 @@ class DecisionTree {
       return strcmp(name, node->data.c_str()) == 0;
     }
 
-//    facts.push_back(Fact::ctor(node->data.c_str(), false));
     bool leftChild = findFacts(name, node->left, facts);
     bool rightChild = findFacts(name, node->right, facts);
     if (leftChild) {
-      facts.push_back(Fact::ctor(node->data.c_str(), true));
+      facts.emplace_back(node->data.c_str(), true);
     }
     if (rightChild) {
-      facts.push_back(Fact::ctor(node->data.c_str(), false));
+      facts.emplace_back(node->data.c_str(), false);
     }
 
     return leftChild || rightChild;
   }
-
-
 
   void addName(Node *curNode) const {
     char name[128] = "";
@@ -175,8 +145,8 @@ class DecisionTree {
 
     input(diff, sizeof(diff) - 1, "Enter fact which true for %s and false for %s?\n", name, curNode->data.c_str());
 
-    curNode->left = Node::New();
-    curNode->right = Node::New();
+    curNode->left = new Node();
+    curNode->right = new Node();
     curNode->right->data = curNode->data;
     curNode->left->data = stringAllocator->allocString(name);
     curNode->data = stringAllocator->allocString(diff);
@@ -215,16 +185,8 @@ class DecisionTree {
   }
 
  public:
-  static DecisionTree ctor(string_view data, StringPool::Allocator *poolAllocator) {
-    DecisionTree res{};
-    res.root = Node::ctor();
-    res.stringAllocator = poolAllocator;
-    parseExpression(data.begin(), data.end(), &res.root, poolAllocator);
-    return res;
-  }
-
-  void dtor() {
-    root.dtor();
+  DecisionTree(string_view data, StringPool::Allocator *poolAllocator) : root(), stringAllocator(poolAllocator) {
+    parseExpression(data.begin(), data.end(), &root, poolAllocator);
   }
 
   void serialize(FILE *fp) {

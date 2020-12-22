@@ -29,8 +29,6 @@ namespace mipt {
             return mData;
         }
 
-
-
         const_iterator begin() const {
             return mData;
         }

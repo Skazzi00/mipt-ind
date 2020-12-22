@@ -49,24 +49,19 @@ target_link_libraries(squareC miptLib m)
 
 add_executable(format_file src/format_file.cpp)
 
-add_executable(stack_ex src/stack_ex.c)
+add_executable(processor src/processor.cpp)
 
-target_link_libraries(stack_ex miptLib)
+target_link_libraries(processor miptLib sfml-graphics sfml-window sfml-system)
 
-add_executable(Processor src/processor.cpp)
+add_executable(vassembler src/vassembler.cpp)
 
-target_link_libraries(Processor miptLib sfml-graphics sfml-window sfml-system)
+target_link_libraries(vassembler miptLib)
 
-add_executable(Vassembler src/vassembler.cpp)
+add_executable(vdisassembler src/vdisassembler.cpp)
 
-target_link_libraries(Vassembler miptLib)
-
-add_executable(Vdisassembler src/vdisassembler.cpp)
-
-target_link_libraries(Vdisassembler miptLib)
+target_link_libraries(vdisassembler miptLib)
 
 add_executable(akinator src/akinator.cpp)
 
 target_link_libraries(akinator miptLib)
 
-add_executable(playground src/playground.cpp)
