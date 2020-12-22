@@ -10,9 +10,9 @@ jobs:
       - name: Install sfml
         run: sudo apt-get install libsfml-dev
         
-      - uses: actions/checkout@v2
-        with: 
-          submodules: true
+        
+      - name: Submodule
+        run: git submodule update --init
       - name: Generate build files using cmake
         run: cmake -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++ .
       - name: Run make
